@@ -19,7 +19,7 @@ export async function GET() {
     const adminUser = await User.create({
       name: "Admin User",
       email: "admin@proudofpakistan.com",
-      password: "password123", // Note: In production use bcrypt
+      password: "password123",
       role: UserRole.ADMIN,
     });
 
@@ -47,6 +47,14 @@ export async function GET() {
         ],
         images: ["/images/abdus-salam.jpg"],
         featured: true,
+        company: "Imperial College London",
+        awards: ["Nobel Prize in Physics", "Hughes Medal"],
+        timeline: [
+          { year: "1926", event: "Born in Jhang, Punjab" },
+          { year: "1957", event: "Appointed Professor of Theoretical Physics at Imperial College" },
+          { year: "1979", event: "Awarded Nobel Prize in Physics" }
+        ],
+        sponsored: false
       },
       {
         name: "Jahangir Khan",
@@ -61,6 +69,14 @@ export async function GET() {
         ],
         images: ["/images/jahangir-khan.jpg"],
         featured: true,
+        company: "Pakistan Squash Federation",
+        awards: ["Pride of Performance", "Hilal-e-Imtiaz"],
+        timeline: [
+          { year: "1963", event: "Born in Karachi, Sindh" },
+          { year: "1981", event: "Became the youngest World Open Champion at age 17" },
+          { year: "1981-1986", event: "Undefeated for 555 consecutive matches" }
+        ],
+        sponsored: false
       },
       {
         name: "Abdul Sattar Edhi",
@@ -76,6 +92,36 @@ export async function GET() {
         ],
         images: ["/images/edhi.jpg"],
         featured: true,
+        company: "Edhi Foundation",
+        awards: ["Nishan-e-Imtiaz", "Lenin Peace Prize"],
+        timeline: [
+          { year: "1928", event: "Born in Bantva, Gujarat" },
+          { year: "1951", event: "Established first clinic in Karachi" },
+          { year: "1997", event: "Secured Guinness World Record for ambulance network" }
+        ],
+        sponsored: false
+      },
+      {
+        name: "Arshad Nadeem",
+        slug: "arshad-nadeem",
+        category: "Sports",
+        biography: "Arshad Nadeem is a Pakistani javelin thrower who won the Gold Medal at the 2024 Paris Olympics with an Olympic record throw of 92.97 meters, ending Pakistan's 32-year Olympic medal drought.",
+        birthDate: new Date("1997-01-02"),
+        achievements: [
+          "Olympic Gold Medal (Paris 2024)",
+          "Olympic Record Throw of 92.97m",
+          "Commonwealth Games Gold Medal (2022)"
+        ],
+        images: ["/images/arshad-nadeem.jpg"],
+        featured: true,
+        company: "Pakistan Athletics",
+        awards: ["Olympic Gold Medal", "Hilal-e-Imtiaz"],
+        timeline: [
+          { year: "1997", event: "Born in Mian Channu, Punjab" },
+          { year: "2022", event: "Won Gold at Commonwealth Games" },
+          { year: "2024", event: "Won Olympic Gold with a record 92.97m throw" }
+        ],
+        sponsored: false
       }
     ]);
 
@@ -88,6 +134,9 @@ export async function GET() {
         description: "Systems Limited is a global pioneer in IT services and software exports. Founded in 1977, the company has consistently delivered state-of-the-art software solutions, earning recognition as a leading digital enterprise in Pakistan.",
         websiteUrl: "https://www.systemsltd.com",
         featured: true,
+        services: ["Software Development", "BPO Services", "Cloud & Infrastructure"],
+        products: ["SysPay", "Retail Platforms"],
+        premium: true
       },
       {
         name: "Habib Bank Limited (HBL)",
@@ -96,6 +145,20 @@ export async function GET() {
         description: "Habib Bank Limited (HBL) is a commercial bank based in Karachi, Pakistan. It is the largest bank in Pakistan by assets, operating a massive branch network domestically and internationally, powering local infrastructure and development.",
         websiteUrl: "https://www.hbl.com",
         featured: true,
+        services: ["Commercial Banking", "Consumer Banking", "Digital Finance"],
+        products: ["HBL Mobile App", "HBL Konnect"],
+        premium: true
+      },
+      {
+        name: "National Foods",
+        slug: "national-foods",
+        category: "Food Processing",
+        description: "National Foods is a premium packaged food brand bringing traditional Pakistani spices, recipe mixes, pickles, and sauces to household tables across the globe.",
+        websiteUrl: "https://nfoods.com",
+        featured: true,
+        services: ["Food Manufacturing", "Exportation"],
+        products: ["Recipe Spices", "Pickles", "Ketchup"],
+        premium: false
       }
     ]);
 
@@ -112,6 +175,8 @@ export async function GET() {
         readTime: "6 min",
         featured: true,
         relatedPersonalities: [personalities[0]._id],
+        province: "Punjab",
+        city: "Jhang"
       },
       {
         title: "How Pak-based IT Hubs are Dominating Global Freelance Tech Exports",
@@ -124,16 +189,45 @@ export async function GET() {
         readTime: "8 min",
         featured: true,
         relatedBusinesses: [businesses[0]._id],
+        province: "Punjab",
+        city: "Lahore"
+      },
+      {
+        title: "K2: The Wild Mountain Path and Tourism Opportunities",
+        subtitle: "A detailed guide to trekking Gilgit-Baltistan's crown jewel.",
+        slug: "k2-wild-mountain",
+        category: "Tourism",
+        tags: ["Tourism", "Mountains", "Gilgit-Baltistan"],
+        content: "<p>K2, the world's second-highest peak, remains the ultimate test for mountaineers. This guide outlines the Karakoram highway routes, basecamp trekking tips, and environmental conservation guidelines for travelers.</p>",
+        authorId: adminUser._id,
+        readTime: "10 min",
+        featured: true,
+        province: "Gilgit-Baltistan",
+        touristPlace: "K2 Basecamp"
+      },
+      {
+        title: "Indus Valley Civilizations: Mohenjo-daro & Harappa Heritage",
+        subtitle: "Unearthing the advanced urban planning of 3300 BCE.",
+        slug: "indus-valley-civilizations",
+        category: "History",
+        tags: ["History", "Heritage", "Sindh"],
+        content: "<p>Discover the grid architecture, drainage systems, and cultural items discovered in Mohenjo-daro (Sindh) and Harappa (Punjab), dating back over 5000 years.</p>",
+        authorId: adminUser._id,
+        readTime: "12 min",
+        featured: true,
+        province: "Sindh",
+        city: "Larkana",
+        historicalEvent: "Bronze Age Settlements"
       }
     ]);
 
     return NextResponse.json({
       success: true,
-      message: "Database seeded successfully with Articles!",
+      message: "Database seeded successfully with rich dynamic content for all pages!",
       usersCreated: 2,
-      personalitiesCreated: 3,
-      businessesCreated: 2,
-      articlesCreated: 2,
+      personalitiesCreated: 4,
+      businessesCreated: 3,
+      articlesCreated: 4,
     });
   } catch (error: any) {
     return NextResponse.json({

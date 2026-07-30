@@ -33,6 +33,42 @@ const mockProvinces: Record<string, ProvinceDetail> = {
     cities: ["Karachi", "Hyderabad", "Sukkur", "Larkana", "Thatta"],
     attractions: ["Mohenjo-daro", "Gorakh Hill", "Shah Jahan Mosque", "Ranikot Fort"],
   },
+  "khyber-pakhtunkhwa": {
+    name: "Khyber Pakhtunkhwa",
+    capital: "Peshawar",
+    historySummary: "Ancient Gandhara Civilization hub, home to the historic Khyber Pass, and key routes of Alexander the Great and Silk Road trade.",
+    cultureSummary: "Rich Pashtun traditions, traditional Attan dance, Pashto poetry, and Gandhara art collections.",
+    foodSummary: "Famous for Chapli Kebab, Kabuli Pulao, Shinwari Karahi, and Peshawari Kahwah.",
+    cities: ["Peshawar", "Abbottabad", "Swat", "Mardan", "Mansehra"],
+    attractions: ["Kalam Valley", "Lake Saif-ul-Muluk", "Khyber Pass", "Takht-i-Bahi Buddhist Ruins"],
+  },
+  balochistan: {
+    name: "Balochistan",
+    capital: "Quetta",
+    historySummary: "Home to Mehrgarh, one of the earliest farming settlements in South Asia (7000 BCE), and the historic Kalat state.",
+    cultureSummary: "Traditional Balochi music, tribal customs, Balochi embroidery, and cultural festivals like Sibi Mela.",
+    foodSummary: "Famous for Balochi Sajji, Dampukht, Khaddi Kebab, and dry fruits.",
+    cities: ["Quetta", "Gwadar", "Turbat", "Khuzdar", "Chaman"],
+    attractions: ["Hingol National Park", "Kund Malir Beach", "Astola Island", "Pir Ghaib Waterfall"],
+  },
+  "gilgit-baltistan": {
+    name: "Gilgit-Baltistan",
+    capital: "Gilgit",
+    historySummary: "Historically part of the silk road, containing ancient rock carvings, Buddhist inscriptions, and local kingdoms like Hunza and Nagar.",
+    cultureSummary: "Unique Shina and Balti languages, local folk dances, and polo matches played on the highest fields globally.",
+    foodSummary: "Famous for Chapshuro, Mamtu (dumplings), Harissa, and organic apricots.",
+    cities: ["Gilgit", "Skardu", "Hunza", "Chilas"],
+    attractions: ["Hunza Valley", "K2 Basecamp", "Attabad Lake", "Deosai Plains National Park"],
+  },
+  "azad-kashmir": {
+    name: "Azad Kashmir",
+    capital: "Muzaffarabad",
+    historySummary: "A region rich in independent princely history, historic forts like Ramkot, and ancient temple ruins.",
+    cultureSummary: "Kashmiri crafts, traditional paper mache art, wood carvings, and Kashmiri folk music.",
+    foodSummary: "Famous for Kashmiri Rogan Josh, Wazwan, Gushtaba, and Kashmiri Pink Tea (Kashmiri Chai).",
+    cities: ["Muzaffarabad", "Mirpur", "Rawalakot", "Bagh"],
+    attractions: ["Neelum Valley", "Ratti Gali Lake", "Banjosa Lake", "Arang Kel Village"],
+  }
 };
 
 export default function ProvinceDetailPage({ params }: { params: Promise<{ province: string }> }) {
@@ -103,39 +139,43 @@ export default function ProvinceDetailPage({ params }: { params: Promise<{ provi
         {/* Sidebar lists */}
         <div className="space-y-8">
           {/* Cities */}
-          <div className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/10">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-amber-400" />
-              Key Cities
-            </h3>
-            <div className="flex flex-col gap-2">
-              {prov.cities.map((city) => (
-                <Link
-                  key={city}
-                  href={`/explore/${provKey}/${city.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="p-3 rounded-xl bg-emerald-950/40 hover:bg-emerald-950/80 border border-emerald-500/5 hover:border-amber-400/30 text-emerald-100/80 hover:text-white transition-all text-xs font-semibold"
-                >
-                  {city}
-                </Link>
-              ))}
+          {prov.cities.length > 0 && (
+            <div className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/10">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-amber-400" />
+                Key Cities
+              </h3>
+              <div className="flex flex-col gap-2">
+                {prov.cities.map((city) => (
+                  <Link
+                    key={city}
+                    href={`/explore/${provKey}/${city.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="p-3 rounded-xl bg-emerald-950/40 hover:bg-emerald-950/80 border border-emerald-500/5 hover:border-amber-400/30 text-emerald-100/80 hover:text-white transition-all text-xs font-semibold"
+                  >
+                    {city}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Attractions */}
-          <div className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/10">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Landmark className="h-4 w-4 text-amber-400" />
-              Famous Attractions
-            </h3>
-            <ul className="text-xs text-emerald-100/70 space-y-2 pl-1">
-              {prov.attractions.map((att) => (
-                <li key={att} className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  {att}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {prov.attractions.length > 0 && (
+            <div className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/10">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Landmark className="h-4 w-4 text-amber-400" />
+                Famous Attractions
+              </h3>
+              <ul className="text-xs text-emerald-100/70 space-y-2 pl-1">
+                {prov.attractions.map((att) => (
+                  <li key={att} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                    {att}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>

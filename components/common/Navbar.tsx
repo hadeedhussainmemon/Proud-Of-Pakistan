@@ -37,6 +37,43 @@ export default function Navbar() {
     ]
   };
 
+  // Maps dropdown items to actual platform paths dynamically
+  const getNavLink = (menu: string, item: string) => {
+    const itemSlug = item.toLowerCase().replace(/\s+/g, "-");
+    
+    if (menu === "Explore") {
+      if (item === "Provinces" || item === "Cities") return "/explore";
+      if (item === "History") return "/history";
+      if (item === "Tourism") return "/tourism";
+      if (["culture", "food", "heritage"].includes(itemSlug)) return `/blog?category=${itemSlug}`;
+      if (["mountains", "lakes", "deserts", "beaches", "national-parks"].includes(itemSlug)) return "/tourism";
+      return `/explore/${itemSlug}`;
+    }
+    
+    if (menu === "Featured Pakistanis") {
+      return `/personalities?category=${itemSlug}`;
+    }
+    
+    if (menu === "Businesses") {
+      return `/businesses?category=${itemSlug}`;
+    }
+    
+    if (menu === "Categories") {
+      return `/blog?category=${itemSlug}`;
+    }
+    
+    if (menu === "Community") {
+      return `/admin/dashboard`;
+    }
+    
+    if (menu === "Resources") {
+      if (item === "Timeline") return "/history";
+      return "/";
+    }
+    
+    return "/";
+  };
+
   // Close menus on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -148,7 +185,7 @@ export default function Navbar() {
               {navigation[activeMenu as keyof typeof navigation].map((item) => (
                 <Link
                   key={item}
-                  href={`/${activeMenu.toLowerCase().replace(" ", "-")}/${item.toLowerCase().replace(" ", "-")}`}
+                  href={getNavLink(activeMenu, item)}
                   onClick={() => setActiveMenu(null)}
                   className="text-sm text-emerald-100/80 hover:text-amber-400 font-medium transition-colors py-1 flex items-center gap-2"
                 >
@@ -193,7 +230,7 @@ export default function Navbar() {
                     {navigation[key as keyof typeof navigation].map((item) => (
                       <Link
                         key={item}
-                        href={`/${key.toLowerCase().replace(" ", "-")}/${item.toLowerCase().replace(" ", "-")}`}
+                        href={getNavLink(key, item)}
                         onClick={closeMobileMenu}
                         className="text-sm text-emerald-100/70 hover:text-white py-1 transition-colors"
                       >

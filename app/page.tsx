@@ -51,10 +51,20 @@ export default function Home() {
       ease: "outQuad"
     });
 
+    const safeFetch = async (url: string) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        return await res.json();
+      } catch (err) {
+        return null;
+      }
+    };
+
     Promise.all([
-      fetch("/api/personalities").then(r => r.json()),
-      fetch("/api/articles").then(r => r.json()),
-      fetch("/api/config").then(r => r.json())
+      safeFetch("/api/personalities"),
+      safeFetch("/api/articles"),
+      safeFetch("/api/config")
     ])
       .then(([persData, artData, configData]) => {
         if (Array.isArray(persData)) setPersonalities(persData);
@@ -88,7 +98,7 @@ export default function Home() {
           <img 
             src={config.heroImageUrl || "/hero_visual.jpg"} 
             alt="Pakistan Heritage Artwork" 
-            className="h-72 w-72 md:h-96 md:w-96 rounded-2xl object-cover border border-emerald-950/40 shadow-2xl"
+            className="h-72 w-72 md:h-96 md:w-96 rounded-2xl object-cover border border-emerald-950/40 shadow-2xl animate-fade-in"
           />
         </div>
       </header>
@@ -128,19 +138,26 @@ export default function Home() {
               Profile Features
             </h3>
             {loading ? (
-              <Loader2 className="h-5 w-5 text-amber-400 animate-spin" />
+              <div className="flex items-center gap-2 text-neutral-500 text-sm py-4">
+                <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+                <span>Loading features...</span>
+              </div>
             ) : (
               <div className="divide-y divide-emerald-950/30">
-                {personalities.slice(0, 3).map((p, idx) => (
-                  <div key={idx} className="py-4 first:pt-0">
-                    <span className="text-[10px] uppercase font-bold text-amber-500/80 tracking-wider">
-                      0{idx + 1} &bull; {p.category}
-                    </span>
-                    <h4 className="text-lg font-bold text-white mt-1 hover:text-amber-400 transition-colors">
-                      <Link href={`/personalities/${p.slug}`}>{p.name}</Link>
-                    </h4>
-                  </div>
-                ))}
+                {personalities.length === 0 ? (
+                  <p className="text-neutral-500 text-sm py-4">No features loaded. Seed database to populate.</p>
+                ) : (
+                  personalities.slice(0, 3).map((p, idx) => (
+                    <div key={idx} className="py-4 first:pt-0">
+                      <span className="text-[10px] uppercase font-bold text-amber-500/80 tracking-wider">
+                        0{idx + 1} &bull; {p.category}
+                      </span>
+                      <h4 className="text-lg font-bold text-white mt-1 hover:text-amber-400 transition-colors">
+                        <Link href={`/personalities/${p.slug}`}>{p.name}</Link>
+                      </h4>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -151,19 +168,26 @@ export default function Home() {
               Latest News
             </h3>
             {loading ? (
-              <Loader2 className="h-5 w-5 text-amber-400 animate-spin" />
+              <div className="flex items-center gap-2 text-neutral-500 text-sm py-4">
+                <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+                <span>Loading news...</span>
+              </div>
             ) : (
               <div className="divide-y divide-emerald-950/30">
-                {articles.slice(0, 3).map((art, idx) => (
-                  <div key={idx} className="py-4 first:pt-0">
-                    <span className="text-[10px] uppercase font-bold text-amber-500/80 tracking-wider">
-                      {art.category}
-                    </span>
-                    <h4 className="text-base font-bold text-white mt-1 hover:text-amber-400 transition-colors leading-snug">
-                      <Link href={`/blog/${art.slug}`}>{art.title}</Link>
-                    </h4>
-                  </div>
-                ))}
+                {articles.length === 0 ? (
+                  <p className="text-neutral-500 text-sm py-4">No news articles found. Seed database to populate.</p>
+                ) : (
+                  articles.slice(0, 3).map((art, idx) => (
+                    <div key={idx} className="py-4 first:pt-0">
+                      <span className="text-[10px] uppercase font-bold text-amber-500/80 tracking-wider">
+                        {art.category}
+                      </span>
+                      <h4 className="text-base font-bold text-white mt-1 hover:text-amber-400 transition-colors leading-snug">
+                        <Link href={`/blog/${art.slug}`}>{art.title}</Link>
+                      </h4>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>

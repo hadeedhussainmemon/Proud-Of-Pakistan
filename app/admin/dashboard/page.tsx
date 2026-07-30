@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { 
   BarChart3, User, Calendar, FileText, PlusCircle, CheckCircle, 
-  Sparkles, Loader2, Settings, Lock, Trash2, Edit3 
+  Sparkles, Loader2, Settings, Lock, Trash2, Edit3, Upload 
 } from "lucide-react";
 
 export default function AdminDashboard() {
   const [personalities, setPersonalities] = useState<any[]>([]);
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState<string | null>(null);
 
   // Creator & Editor Form states
   const [persForm, setPersForm] = useState({ name: "", category: "Science", biography: "", achievements: "", images: "" });
@@ -78,6 +79,33 @@ export default function AdminDashboard() {
     alert("Admin password updated successfully!");
   };
 
+  // --- Cloudinary File Uploader helper ---
+  const uploadFile = async (e: React.ChangeEvent<HTMLInputElement>, targetKey: string, callback: (url: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(targetKey);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        callback(data.url);
+      } else {
+        alert("Upload failed: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      alert("Upload failed due to connection error.");
+    } finally {
+      setUploading(null);
+    }
+  };
+
   // --- CRUD: Personalities ---
   const handleSavePersonality = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +116,6 @@ export default function AdminDashboard() {
     const payload = { ...persForm, achievements: achievementsArray, images: imagesArray, slug, featured: true };
 
     if (editPersSlug) {
-      // Update
       await fetch(`/api/personalities/${editPersSlug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -97,7 +124,6 @@ export default function AdminDashboard() {
       setEditPersSlug(null);
       alert("Personality profile updated!");
     } else {
-      // Create
       await fetch("/api/personalities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -141,7 +167,6 @@ export default function AdminDashboard() {
     };
 
     if (editArtSlug) {
-      // Update
       await fetch(`/api/articles/${editArtSlug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -150,7 +175,6 @@ export default function AdminDashboard() {
       setEditArtSlug(null);
       alert("News article updated!");
     } else {
-      // Create
       await fetch("/api/articles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -254,37 +278,62 @@ export default function AdminDashboard() {
                   className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
                 />
               </div>
+              
+              {/* Logo Asset upload */}
               <div>
                 <label className="text-xs text-neutral-300 block mb-1">Logo Asset URL</label>
-                <input
-                  type="text"
-                  value={siteConfig.logoUrl}
-                  onChange={(e) => setSiteConfig({ ...siteConfig, logoUrl: e.target.value })}
-                  required
-                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={siteConfig.logoUrl}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, logoUrl: e.target.value })}
+                    required
+                    className="flex-grow bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                  />
+                  <label className="bg-amber-400 hover:bg-amber-300 text-emerald-950 px-3 flex items-center rounded-lg cursor-pointer text-xs font-bold">
+                    {uploading === "logo" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    <input type="file" className="hidden" onChange={(e) => uploadFile(e, "logo", (url) => setSiteConfig({ ...siteConfig, logoUrl: url }))} />
+                  </label>
+                </div>
               </div>
+
+              {/* Favicon Asset upload */}
               <div>
                 <label className="text-xs text-neutral-300 block mb-1">Favicon Asset URL</label>
-                <input
-                  type="text"
-                  value={siteConfig.faviconUrl}
-                  onChange={(e) => setSiteConfig({ ...siteConfig, faviconUrl: e.target.value })}
-                  required
-                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={siteConfig.faviconUrl}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, faviconUrl: e.target.value })}
+                    required
+                    className="flex-grow bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                  />
+                  <label className="bg-amber-400 hover:bg-amber-300 text-emerald-950 px-3 flex items-center rounded-lg cursor-pointer text-xs font-bold">
+                    {uploading === "favicon" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    <input type="file" className="hidden" onChange={(e) => uploadFile(e, "favicon", (url) => setSiteConfig({ ...siteConfig, faviconUrl: url }))} />
+                  </label>
+                </div>
               </div>
+
+              {/* Hero Image upload */}
               <div>
                 <label className="text-xs text-neutral-300 block mb-1">Hero Image Visual URL</label>
-                <input
-                  type="text"
-                  value={siteConfig.heroImageUrl}
-                  onChange={(e) => setSiteConfig({ ...siteConfig, heroImageUrl: e.target.value })}
-                  required
-                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={siteConfig.heroImageUrl}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, heroImageUrl: e.target.value })}
+                    required
+                    className="flex-grow bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                  />
+                  <label className="bg-amber-400 hover:bg-amber-300 text-emerald-950 px-3 flex items-center rounded-lg cursor-pointer text-xs font-bold">
+                    {uploading === "hero" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    <input type="file" className="hidden" onChange={(e) => uploadFile(e, "hero", (url) => setSiteConfig({ ...siteConfig, heroImageUrl: url }))} />
+                  </label>
+                </div>
               </div>
-              <button type="submit" className="w-full py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold transition-all text-xs">
+
+              <button type="submit" className="w-full py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold transition-all text-xs mt-2">
                 Update Brand & Content Config
               </button>
             </form>
@@ -361,13 +410,25 @@ export default function AdminDashboard() {
                 onChange={(e) => setPersForm({ ...persForm, achievements: e.target.value })}
                 className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
               />
-              <input
-                type="text"
-                placeholder="Profile Images URLs (comma separated)"
-                value={persForm.images}
-                onChange={(e) => setPersForm({ ...persForm, images: e.target.value })}
-                className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-              />
+              
+              {/* Profile Image file upload */}
+              <div>
+                <label className="text-xs text-neutral-300 block mb-1">Profile Image URLs</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Profile Images (comma separated)"
+                    value={persForm.images}
+                    onChange={(e) => setPersForm({ ...persForm, images: e.target.value })}
+                    className="flex-grow bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                  />
+                  <label className="bg-amber-400 hover:bg-amber-300 text-emerald-950 px-3 flex items-center rounded-lg cursor-pointer text-xs font-bold">
+                    {uploading === "persImg" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    <input type="file" className="hidden" onChange={(e) => uploadFile(e, "persImg", (url) => setPersForm({ ...persForm, images: url }))} />
+                  </label>
+                </div>
+              </div>
+
               <button type="submit" className="w-full py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold transition-all text-xs">
                 {editPersSlug ? "Update & Save Spotlight" : "Save & Spotlight Live"}
               </button>
@@ -409,13 +470,25 @@ export default function AdminDashboard() {
                 <option value="Culture">Culture</option>
                 <option value="Business">Business</option>
               </select>
-              <input
-                type="text"
-                placeholder="Hero Image URL (e.g. /images/news1.jpg)"
-                value={artForm.heroImage}
-                onChange={(e) => setArtForm({ ...artForm, heroImage: e.target.value })}
-                className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-              />
+              
+              {/* Article Image file upload */}
+              <div>
+                <label className="text-xs text-neutral-300 block mb-1">Hero Image URL</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Hero Image URL (e.g. /images/news1.jpg)"
+                    value={artForm.heroImage}
+                    onChange={(e) => setArtForm({ ...artForm, heroImage: e.target.value })}
+                    className="flex-grow bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                  />
+                  <label className="bg-amber-400 hover:bg-amber-300 text-emerald-950 px-3 flex items-center rounded-lg cursor-pointer text-xs font-bold">
+                    {uploading === "artImg" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    <input type="file" className="hidden" onChange={(e) => uploadFile(e, "artImg", (url) => setArtForm({ ...artForm, heroImage: url }))} />
+                  </label>
+                </div>
+              </div>
+
               <textarea
                 placeholder="Write rich HTML/Text content..."
                 value={artForm.content}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Calendar, BookOpen, Loader2 } from "lucide-react";
+import { Search, Calendar, Loader2 } from "lucide-react";
 
 interface Article {
   title: string;
@@ -22,7 +22,10 @@ export default function BlogPage() {
 
   useEffect(() => {
     fetch("/api/articles")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data)) {
           setArticles(data);
@@ -35,7 +38,8 @@ export default function BlogPage() {
       });
   }, []);
 
-  const categories = ["All", "History", "Tourism", "Culture", "Business", "Technology", "Sports"];
+  // Dynamically extract categories from loaded articles
+  const categories = ["All", ...Array.from(new Set(articles.map((art) => art.category)))];
 
   const filtered = articles.filter((art) => {
     const matchesSearch = art.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -90,35 +94,41 @@ export default function BlogPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filtered.map((art, idx) => (
-            <div
-              key={idx}
-              className="p-8 rounded-3xl bg-emerald-950/10 border border-emerald-500/10 hover:border-emerald-500/20 transition-all flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">
-                    {art.category}
-                  </span>
-                  <span className="text-xs text-emerald-100/40">{art.readTime} read</span>
-                </div>
-                <h2 className="text-xl font-bold text-white mb-2 leading-snug">{art.title}</h2>
-                <p className="text-emerald-100/60 text-sm mb-6 leading-relaxed line-clamp-2">{art.subtitle}</p>
-              </div>
-              <div className="flex justify-between items-center border-t border-emerald-500/10 pt-4 mt-4">
-                <div className="flex items-center gap-1 text-xs text-emerald-100/50">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span>{new Date(art.publishedAt).toLocaleDateString()}</span>
-                </div>
-                <Link
-                  href={`/blog/${art.slug}`}
-                  className="text-xs font-semibold text-emerald-300 hover:text-white"
-                >
-                  Read Article &rarr;
-                </Link>
-              </div>
+          {filtered.length === 0 ? (
+            <div className="col-span-2 text-center text-neutral-500 text-sm py-12">
+              No news articles found.
             </div>
-          ))}
+          ) : (
+            filtered.map((art, idx) => (
+              <div
+                key={idx}
+                className="p-8 rounded-3xl bg-emerald-950/10 border border-emerald-500/10 hover:border-emerald-500/20 transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">
+                      {art.category}
+                    </span>
+                    <span className="text-xs text-emerald-100/40">{art.readTime} read</span>
+                  </div>
+                  <h2 className="text-xl font-bold text-white mb-2 leading-snug">{art.title}</h2>
+                  <p className="text-emerald-100/60 text-sm mb-6 leading-relaxed line-clamp-2">{art.subtitle}</p>
+                </div>
+                <div className="flex justify-between items-center border-t border-emerald-500/10 pt-4 mt-4">
+                  <div className="flex items-center gap-1 text-xs text-emerald-100/50">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>{new Date(art.publishedAt).toLocaleDateString()}</span>
+                  </div>
+                  <Link
+                    href={`/blog/${art.slug}`}
+                    className="text-xs font-semibold text-emerald-300 hover:text-white"
+                  >
+                    Read Article &rarr;
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

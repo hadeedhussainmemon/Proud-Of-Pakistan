@@ -98,7 +98,7 @@ export default function Navbar() {
               </button>
             ) : (
               <Link
-                href="/api/auth/signin"
+                href="/login"
                 className="flex items-center gap-1.5 px-3 py-2 bg-amber-400 hover:bg-amber-300 text-emerald-950 text-xs font-bold rounded-lg transition-colors"
               >
                 <LogIn className="h-3.5 w-3.5" />
@@ -162,7 +162,7 @@ export default function Navbar() {
                 </button>
               ) : (
                 <Link
-                  href="/api/auth/signin"
+                  href="/login"
                   onClick={closeMobileMenu}
                   className="w-full flex items-center gap-2 bg-amber-400 text-emerald-950 font-bold text-sm py-2.5 px-4 rounded-lg justify-center"
                 >

@@ -5,15 +5,20 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { nextUrl } = req;
 
-  // Protect Admin CMS pathways
-  if (nextUrl.pathname.startsWith("/admin")) {
+  const protectedPaths = ["/admin", "/profile", "/personalities/submit"];
+  const isProtected = protectedPaths.some((p) => nextUrl.pathname.startsWith(p));
+
+  if (isProtected) {
     if (!req.auth) {
-      return NextResponse.redirect(new URL("/api/auth/signin", nextUrl));
+      return NextResponse.redirect(new URL("/login", nextUrl));
     }
     
-    const userRole = (req.auth.user as any)?.role;
-    if (userRole !== "Admin") {
-      return NextResponse.redirect(new URL("/", nextUrl));
+    // Admin specific check
+    if (nextUrl.pathname.startsWith("/admin")) {
+      const userRole = (req.auth.user as any)?.role;
+      if (userRole !== "Admin") {
+        return NextResponse.redirect(new URL("/", nextUrl));
+      }
     }
   }
 
@@ -21,5 +26,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/admin/:path*", "/profile/:path*"],
+  matcher: ["/admin/:path*", "/profile/:path*", "/personalities/submit/:path*"],
 };

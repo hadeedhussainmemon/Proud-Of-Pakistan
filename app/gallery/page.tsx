@@ -1,51 +1,83 @@
 "use client";
 
-import { useState } from "react";
-import { Sparkles, Compass } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Image as ImageIcon, Loader2 } from "lucide-react";
+
+interface GalleryItem {
+  _id: string;
+  title: string;
+  category: string;
+  imageUrl: string;
+}
 
 export default function GalleryPage() {
-  const items = [
-    { desc: "Badshahi Mosque, Lahore", category: "Heritage" },
-    { desc: "Passu Cones Peak, Hunza", category: "Mountains" },
-    { desc: "Lake Saif-ul-Mulook, Kaghan", category: "Lakes" },
-    { desc: "Kund Malir Coastline, Balochistan", category: "Beaches" },
-    { desc: "Deosai Plains Plateau, GB", category: "National Parks" },
-    { desc: "Derawar Fort Ruins, Cholistan", category: "Heritage" }
-  ];
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  useEffect(() => {
+    fetch("/api/gallery")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setGallery(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const categories = ["All", ...Array.from(new Set(gallery.map(g => g.category)))];
+  const filteredGallery = activeCategory === "All" ? gallery : gallery.filter(g => g.category === activeCategory);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-semibold mb-4">
-          <Sparkles className="h-3 w-3" />
-          <span>Visual Heritage Archive</span>
-        </div>
-        <h1 className="text-4xl md:text-5xl font-display font-extrabold tracking-tight text-white mb-6 leading-tight">
-          Visual Gallery
+      <div className="text-center mb-16 max-w-2xl mx-auto">
+        <h1 className="text-4xl font-display font-extrabold tracking-tight text-white mb-4">
+          Visual Archive
         </h1>
-        <p className="text-emerald-100/60 text-base md:text-lg leading-relaxed">
-          High-resolution showcases of Pakistan's diverse landscape, architecture, and heritage.
+        <p className="text-emerald-100/60 text-sm">
+          Explore historical moments, rare photographs, and visual records of extraordinary achievements.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {items.map((item, idx) => (
-          <div
-            key={idx}
-            className="group overflow-hidden rounded-3xl border border-emerald-500/10 bg-emerald-950/20 hover:border-emerald-500/30 transition-all duration-300"
+      <div className="flex justify-center flex-wrap gap-2 mb-12">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+              activeCategory === cat
+                ? "bg-amber-400 text-emerald-950"
+                : "bg-emerald-950/40 text-emerald-100/70 hover:bg-emerald-950/70 border border-emerald-500/10"
+            }`}
           >
-            <div className="h-48 bg-gradient-to-tr from-emerald-900/60 to-emerald-950/80 flex items-center justify-center text-emerald-300/30 relative">
-              <Compass className="h-10 w-10 group-hover:scale-110 transition-transform duration-300" />
-              <span className="absolute top-3 left-3 bg-black/40 backdrop-blur px-2.5 py-0.5 rounded text-xs text-amber-400 font-semibold border border-white/10">
-                {item.category}
-              </span>
-            </div>
-            <div className="p-6">
-              <h3 className="font-display font-bold text-xl text-white mb-2">{item.desc}</h3>
-            </div>
-          </div>
+            {cat}
+          </button>
         ))}
       </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-10 w-10 text-amber-400 animate-spin" />
+        </div>
+      ) : (
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          {filteredGallery.length === 0 ? (
+            <p className="text-neutral-500 text-center col-span-full w-full py-10">No images found.</p>
+          ) : filteredGallery.map((item) => (
+            <div key={item._id} className="break-inside-avoid rounded-2xl overflow-hidden border border-emerald-500/10 bg-emerald-950/20 group relative">
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105 transform"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                <h3 className="text-white font-bold text-lg">{item.title}</h3>
+                <p className="text-amber-400 text-xs font-semibold mt-1 uppercase tracking-wider">{item.category}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

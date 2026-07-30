@@ -2,13 +2,23 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Award, BookOpen, Loader2 } from "lucide-react";
+import { Search, Loader2, Linkedin, Facebook, Instagram, Twitter, Globe, Mail, Share2, PlusCircle, User } from "lucide-react";
+
+interface SocialLinks {
+  linkedin?: string;
+  twitter?: string;
+  facebook?: string;
+  instagram?: string;
+  contact?: string;
+}
 
 interface Personality {
   name: string;
   category: string;
   biography: string;
-  achievements: string[];
+  profilePicture?: string;
+  socialLinks?: SocialLinks;
+  website?: string;
   slug: string;
 }
 
@@ -20,23 +30,14 @@ export default function PersonalitiesPage() {
 
   useEffect(() => {
     fetch("/api/personalities")
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.json();
-      })
+      .then((res) => { if (!res.ok) return null; return res.json(); })
       .then((data) => {
-        if (Array.isArray(data)) {
-          setPersonalities(data);
-        }
+        if (Array.isArray(data)) setPersonalities(data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error("Failed to load personalities", err);
-        setLoading(false);
-      });
+      .catch((err) => { console.error(err); setLoading(false); });
   }, []);
 
-  // Dynamically extract categories from the loaded personalities
   const categories = ["All", ...Array.from(new Set(personalities.map((p) => p.category)))];
 
   const filteredList = personalities.filter((p) => {
@@ -45,15 +46,36 @@ export default function PersonalitiesPage() {
     return matchesSearch && matchesFilter;
   });
 
+  const handleShare = async (slug: string) => {
+    const url = `${window.location.origin}/personalities/${slug}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'View Profile', url });
+      } catch (err) {}
+    } else {
+      navigator.clipboard.writeText(url);
+      alert("Profile link copied to clipboard!");
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <h1 className="text-4xl font-display font-extrabold tracking-tight text-white mb-4">
-          Outstanding Personalities
-        </h1>
-        <p className="text-emerald-100/60 text-sm">
-          Tributes to the legendary visionaries, scientists, and humanitarians of Pakistan.
-        </p>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+        <div className="max-w-2xl">
+          <h1 className="text-4xl font-display font-extrabold tracking-tight text-white mb-4">
+            Profile Features
+          </h1>
+          <p className="text-emerald-100/60 text-sm">
+            Discover the legendary visionaries, entrepreneurs, and leaders of Pakistan.
+          </p>
+        </div>
+        <Link 
+          href="/personalities/submit"
+          className="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-emerald-950 px-5 py-3 rounded-xl font-bold transition-all shrink-0"
+        >
+          <PlusCircle className="h-5 w-5" />
+          Get Featured
+        </Link>
       </div>
 
       {/* Filters & Search */}
@@ -62,7 +84,7 @@ export default function PersonalitiesPage() {
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-emerald-100/40" />
           <input
             type="text"
-            placeholder="Search personalities..."
+            placeholder="Search profiles..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-emerald-990/60 border border-emerald-950/50 rounded-lg py-2 pl-10 pr-4 text-sm text-white placeholder-emerald-100/30 focus:outline-none focus:border-amber-400"
@@ -85,47 +107,65 @@ export default function PersonalitiesPage() {
         </div>
       </div>
 
-      {/* Loading Skeleton */}
       {loading ? (
         <div className="flex justify-center py-20">
           <Loader2 className="h-10 w-10 text-amber-400 animate-spin" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredList.length === 0 ? (
-            <div className="col-span-2 text-center text-neutral-500 text-sm py-12">
+            <div className="col-span-full text-center text-neutral-500 text-sm py-12">
               No profiles found matching search criteria.
             </div>
           ) : (
             filteredList.map((p, idx) => (
               <div
                 key={idx}
-                className="bg-emerald-950/15 border border-emerald-950/20 rounded-2xl p-6 hover:border-emerald-500/20 transition-all duration-300 flex flex-col justify-between"
+                className="bg-[#0a120e] rounded-3xl overflow-hidden border border-emerald-900/40 hover:border-amber-400/50 transition-all duration-300 flex flex-col group"
               >
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                      {p.category}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-300">
-                      <Award className="h-3 w-3" />
-                      Key Icon
-                    </span>
+                {/* Top Image Section */}
+                <div className="h-64 w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
+                  {p.profilePicture ? (
+                    <img src={p.profilePicture} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <User className="h-20 w-20 text-emerald-900/50" />
+                  )}
+                  <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-amber-400 border border-white/10">
+                    {p.category}
                   </div>
-                  <h2 className="text-2xl font-display font-bold text-white mb-2">{p.name}</h2>
-                  <p className="text-emerald-100/60 text-sm mb-4 leading-relaxed line-clamp-3">{p.biography}</p>
                 </div>
-                <div className="border-t border-emerald-950/30 pt-4 mt-4 flex flex-col gap-2">
-                  <div className="flex gap-2 items-center text-xs text-emerald-300 bg-emerald-950/10 p-3 rounded-lg">
-                    <BookOpen className="h-4 w-4 text-amber-400 flex-shrink-0" />
-                    <span><strong>Key achievement:</strong> {p.achievements?.[0] || "National contributor"}</span>
+
+                {/* Bottom Details Section */}
+                <div className="p-6 flex flex-col flex-grow">
+                  <h2 className="text-2xl font-display font-bold text-white mb-2">{p.name}</h2>
+                  <p className="text-emerald-100/60 text-sm mb-6 line-clamp-2">{p.biography}</p>
+                  
+                  {/* Social Icons row */}
+                  <div className="flex items-center gap-3 mb-6">
+                    {p.socialLinks?.linkedin && <a href={p.socialLinks.linkedin} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Linkedin className="h-4 w-4" /></a>}
+                    {p.socialLinks?.twitter && <a href={p.socialLinks.twitter} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Twitter className="h-4 w-4" /></a>}
+                    {p.socialLinks?.instagram && <a href={p.socialLinks.instagram} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Instagram className="h-4 w-4" /></a>}
+                    {p.socialLinks?.facebook && <a href={p.socialLinks.facebook} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Facebook className="h-4 w-4" /></a>}
+                    {p.website && <a href={p.website} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Globe className="h-4 w-4" /></a>}
+                    {p.socialLinks?.contact && <a href={`mailto:${p.socialLinks.contact}`} className="text-emerald-400 hover:text-amber-400"><Mail className="h-4 w-4" /></a>}
                   </div>
-                  <Link
-                    href={`/personalities/${p.slug}`}
-                    className="text-xs font-bold text-amber-400 hover:text-amber-300 mt-2 block self-end"
-                  >
-                    View Profile details &rarr;
-                  </Link>
+
+                  {/* Actions */}
+                  <div className="mt-auto flex gap-3 pt-4 border-t border-emerald-900/30">
+                    <Link
+                      href={`/personalities/${p.slug}`}
+                      className="flex-1 bg-emerald-950 text-white text-sm font-bold py-2.5 rounded-xl text-center hover:bg-emerald-900 transition-colors"
+                    >
+                      View Profile
+                    </Link>
+                    <button 
+                      onClick={() => handleShare(p.slug)}
+                      className="bg-emerald-950 hover:bg-emerald-900 text-amber-400 p-2.5 rounded-xl transition-colors"
+                      title="Share Profile"
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))

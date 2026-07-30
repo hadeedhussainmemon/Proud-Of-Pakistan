@@ -10,9 +10,11 @@ export interface ISocialLinks {
   twitter?: string;
   facebook?: string;
   instagram?: string;
+  contact?: string;
 }
 
 export interface IPersonality extends Document {
+  status: "pending" | "approved";
   name: string;
   slug: string;
   category: string;
@@ -60,10 +62,12 @@ const PersonalitySchema = new Schema<IPersonality>({
     twitter: { type: String },
     facebook: { type: String },
     instagram: { type: String },
+    contact: { type: String },
   },
   website: { type: String },
   relatedProfiles: [{ type: Schema.Types.ObjectId, ref: "Personality" }],
   sponsored: { type: Boolean, default: false },
+  status: { type: String, enum: ['pending', 'approved'], default: 'approved' },
 });
 
 export default models.Personality || model<IPersonality>("Personality", PersonalitySchema);

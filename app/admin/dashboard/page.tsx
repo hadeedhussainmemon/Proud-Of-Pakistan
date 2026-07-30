@@ -2,31 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { 
-  BarChart3, User, Briefcase, FileText, PlusCircle, CheckCircle, 
-  Trash2, Sparkles, Loader2, Award 
+  BarChart3, User, Calendar, FileText, PlusCircle, CheckCircle, 
+  Sparkles, Loader2 
 } from "lucide-react";
 
 export default function AdminDashboard() {
   const [personalities, setPersonalities] = useState<any[]>([]);
-  const [businesses, setBusinesses] = useState<any[]>([]);
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Form states for adding items
   const [persForm, setPersForm] = useState({ name: "", category: "Science", biography: "", achievements: "" });
-  const [busForm, setBusForm] = useState({ name: "", category: "Technology", description: "", websiteUrl: "" });
   const [artForm, setArtForm] = useState({ title: "", category: "History", subtitle: "", content: "" });
 
   const fetchData = () => {
     setLoading(true);
     Promise.all([
       fetch("/api/personalities").then((r) => r.json()),
-      fetch("/api/businesses").then((r) => r.json()),
       fetch("/api/articles").then((r) => r.json()),
     ])
-      .then(([p, b, a]) => {
+      .then(([p, a]) => {
         if (Array.isArray(p)) setPersonalities(p);
-        if (Array.isArray(b)) setBusinesses(b);
         if (Array.isArray(a)) setArticles(a);
         setLoading(false);
       })
@@ -34,26 +30,7 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    let active = true;
-    Promise.all([
-      fetch("/api/personalities").then((r) => r.json()),
-      fetch("/api/businesses").then((r) => r.json()),
-      fetch("/api/articles").then((r) => r.json()),
-    ])
-      .then(([p, b, a]) => {
-        if (active) {
-          if (Array.isArray(p)) setPersonalities(p);
-          if (Array.isArray(b)) setBusinesses(b);
-          if (Array.isArray(a)) setArticles(a);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
+    fetchData();
   }, []);
 
   const handleAddPersonality = async (e: React.FormEvent) => {
@@ -70,24 +47,10 @@ export default function AdminDashboard() {
     fetchData();
   };
 
-  const handleAddBusiness = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const slug = busForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-
-    await fetch("/api/businesses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...busForm, slug, featured: true }),
-    });
-    setBusForm({ name: "", category: "Technology", description: "", websiteUrl: "" });
-    fetchData();
-  };
-
   const handleAddArticle = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = artForm.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     
-    // Uses the default admin user seeded in dbConnect
     await fetch("/api/articles", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -129,12 +92,11 @@ export default function AdminDashboard() {
       ) : (
         <>
           {/* Quick Metrics Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {[
-              { label: "Total Articles", val: articles.length, icon: FileText, color: "text-blue-400 bg-blue-400/5 border-blue-400/10" },
+              { label: "Total Articles (News)", val: articles.length, icon: FileText, color: "text-blue-400 bg-blue-400/5 border-blue-400/10" },
               { label: "Featured People", val: personalities.length, icon: User, color: "text-amber-400 bg-amber-400/5 border-amber-400/10" },
-              { label: "Listed Businesses", val: businesses.length, icon: Briefcase, color: "text-teal-400 bg-teal-400/5 border-teal-400/10" },
-              { label: "Pending Reviews", val: 0, icon: BarChart3, color: "text-rose-400 bg-rose-400/5 border-rose-400/10" }
+              { label: "Scheduled Events", val: 4, icon: Calendar, color: "text-teal-400 bg-teal-400/5 border-teal-400/10" },
             ].map((stat, idx) => {
               const Icon = stat.icon;
               return (
@@ -150,7 +112,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick CMS Creators */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             {/* 1. Add Personality */}
             <form onSubmit={handleAddPersonality} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
@@ -180,7 +142,7 @@ export default function AdminDashboard() {
                 value={persForm.biography}
                 onChange={(e) => setPersForm({ ...persForm, biography: e.target.value })}
                 required
-                rows={3}
+                rows={4}
                 className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
               />
               <input
@@ -195,53 +157,10 @@ export default function AdminDashboard() {
               </button>
             </form>
 
-            {/* 2. Add Business */}
-            <form onSubmit={handleAddBusiness} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
-              <h2 className="text-lg font-bold text-emerald-300 flex items-center gap-1.5 border-b border-emerald-500/10 pb-2">
-                <PlusCircle className="h-5 w-5 text-amber-400" /> Add Corporate Listing
-              </h2>
-              <input
-                type="text"
-                placeholder="Business Name"
-                value={busForm.name}
-                onChange={(e) => setBusForm({ ...busForm, name: e.target.value })}
-                required
-                className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-              />
-              <select
-                value={busForm.category}
-                onChange={(e) => setBusForm({ ...busForm, category: e.target.value })}
-                className="w-full bg-emerald-990 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-              >
-                <option value="Technology">Technology</option>
-                <option value="Finance">Finance</option>
-                <option value="Food & Retail">Food & Retail</option>
-                <option value="Hotels">Hotels</option>
-              </select>
-              <textarea
-                placeholder="Business Description"
-                value={busForm.description}
-                onChange={(e) => setBusForm({ ...busForm, description: e.target.value })}
-                required
-                rows={3}
-                className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-              />
-              <input
-                type="url"
-                placeholder="Website URL"
-                value={busForm.websiteUrl}
-                onChange={(e) => setBusForm({ ...busForm, websiteUrl: e.target.value })}
-                className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
-              />
-              <button type="submit" className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold transition-all text-xs">
-                Save & Add Listing
-              </button>
-            </form>
-
-            {/* 3. Add Blog Article */}
+            {/* 2. Add Blog Article */}
             <form onSubmit={handleAddArticle} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
               <h2 className="text-lg font-bold text-emerald-300 flex items-center gap-1.5 border-b border-emerald-500/10 pb-2">
-                <PlusCircle className="h-5 w-5 text-amber-400" /> Write Blog Article
+                <PlusCircle className="h-5 w-5 text-amber-400" /> Write News & Article
               </h2>
               <input
                 type="text"
@@ -273,7 +192,7 @@ export default function AdminDashboard() {
                 value={artForm.content}
                 onChange={(e) => setArtForm({ ...artForm, content: e.target.value })}
                 required
-                rows={3}
+                rows={4}
                 className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
               />
               <button type="submit" className="w-full py-2.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-emerald-950 font-bold transition-all text-xs">

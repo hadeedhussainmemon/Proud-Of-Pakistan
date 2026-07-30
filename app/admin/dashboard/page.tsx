@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { 
   BarChart3, User, Calendar, FileText, PlusCircle, CheckCircle, 
-  Sparkles, Loader2 
+  Sparkles, Loader2, Settings, Lock 
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -14,16 +14,22 @@ export default function AdminDashboard() {
   // Form states for adding items
   const [persForm, setPersForm] = useState({ name: "", category: "Science", biography: "", achievements: "" });
   const [artForm, setArtForm] = useState({ title: "", category: "History", subtitle: "", content: "" });
+  
+  // Site Config & Security states
+  const [siteConfig, setSiteConfig] = useState({ headline: "", subheadline: "" });
+  const [securityForm, setSecurityForm] = useState({ newPassword: "" });
 
   const fetchData = () => {
     setLoading(true);
     Promise.all([
       fetch("/api/personalities").then((r) => r.json()),
       fetch("/api/articles").then((r) => r.json()),
+      fetch("/api/config").then((r) => r.json()),
     ])
-      .then(([p, a]) => {
+      .then(([p, a, c]) => {
         if (Array.isArray(p)) setPersonalities(p);
         if (Array.isArray(a)) setArticles(a);
+        if (c && c.headline) setSiteConfig({ headline: c.headline, subheadline: c.subheadline });
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -32,6 +38,27 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleUpdateConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(siteConfig),
+    });
+    alert("Site configuration updated successfully!");
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await fetch("/api/auth/update-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(securityForm),
+    });
+    setSecurityForm({ newPassword: "" });
+    alert("Admin password updated successfully!");
+  };
 
   const handleAddPersonality = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +84,7 @@ export default function AdminDashboard() {
       body: JSON.stringify({ 
         ...artForm, 
         slug, 
-        authorId: "60c72b2f9b1d8b2a5c8e4f1a", // placeholder adminId
+        authorId: "60c72b2f9b1d8b2a5c8e4f1a", 
         readTime: "5 min",
         featured: true 
       }),
@@ -75,7 +102,7 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-display font-extrabold flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-amber-400" /> Administrative CMS Dashboard
           </h1>
-          <p className="text-xs text-emerald-100/50 mt-1">NO SIDEBAR. Fully integrated within Top Navigation bar parameters.</p>
+          <p className="text-xs text-emerald-100/50 mt-1">Manage content, site configurations, and security credentials.</p>
         </div>
         <button 
           onClick={fetchData}
@@ -109,6 +136,62 @@ export default function AdminDashboard() {
                 </div>
               );
             })}
+          </div>
+
+          {/* Configuration and Security Forms */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            
+            {/* Site Configuration */}
+            <form onSubmit={handleUpdateConfig} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
+              <h2 className="text-lg font-bold text-amber-400 flex items-center gap-1.5 border-b border-emerald-500/10 pb-2">
+                <Settings className="h-5 w-5" /> Homepage Headline & Settings
+              </h2>
+              <div>
+                <label className="text-xs text-neutral-300 block mb-1">Headline Text</label>
+                <input
+                  type="text"
+                  value={siteConfig.headline}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, headline: e.target.value })}
+                  required
+                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-neutral-300 block mb-1">Subheadline Text</label>
+                <textarea
+                  value={siteConfig.subheadline}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, subheadline: e.target.value })}
+                  required
+                  rows={2}
+                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                />
+              </div>
+              <button type="submit" className="w-full py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold transition-all text-xs">
+                Update Homepage Configuration
+              </button>
+            </form>
+
+            {/* Change Admin Password */}
+            <form onSubmit={handleUpdatePassword} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
+              <h2 className="text-lg font-bold text-amber-400 flex items-center gap-1.5 border-b border-emerald-500/10 pb-2">
+                <Lock className="h-5 w-5" /> Admin Security Settings
+              </h2>
+              <div>
+                <label className="text-xs text-neutral-300 block mb-1">New Password</label>
+                <input
+                  type="password"
+                  placeholder="Enter new admin password"
+                  value={securityForm.newPassword}
+                  onChange={(e) => setSecurityForm({ newPassword: e.target.value })}
+                  required
+                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                />
+              </div>
+              <button type="submit" className="w-full py-2.5 rounded-lg bg-rose-500 hover:bg-rose-400 text-white font-bold transition-all text-xs mt-6">
+                Update Admin Password
+              </button>
+            </form>
+
           </div>
 
           {/* Quick CMS Creators */}

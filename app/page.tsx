@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { animate, stagger } from "animejs";
-import { Search, ArrowRight, Loader2 } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 
 interface Personality {
   name: string;
@@ -19,10 +19,26 @@ interface Article {
   category: string;
 }
 
+interface SiteConfig {
+  headline: string;
+  subheadline: string;
+  aboutText: string[];
+}
+
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [personalities, setPersonalities] = useState<Personality[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
+  const [config, setConfig] = useState<SiteConfig>({
+    headline: "Proud of Pakistan – A Symbol of National Honor, Excellence, and Inspiration",
+    subheadline: "Honoring exceptional citizens whose achievements, character, and service represent the strength and future of our nation.",
+    aboutText: [
+      "\"Proud of Pakistan\" is not merely a title or an award; it is a prestigious recognition dedicated to individuals whose character, commitment, achievements, and selfless service have brought honor and pride to Pakistan. It is a tribute to those who have made a meaningful impact on society through their talent, integrity, hard work, and unwavering dedication.",
+      "A true Proud of Pakistan is not defined by fame alone, but by the positive difference they create in the lives of others. These are individuals who place the interests of their nation above personal gain, inspire future generations, and contribute to the progress and prosperity of Pakistan through their actions.",
+      "The title \"Proud of Pakistan\" is reserved for exceptional individuals who have demonstrated excellence in diverse fields, including education, healthcare, science, technology, sports, literature, journalism, arts and culture, social welfare, entrepreneurship, public service, law, research, environmental protection, humanitarian work, and national defense.",
+      "This recognition also honors young achievers, women, men, and senior citizens who, despite limited resources and countless challenges, have pursued their dreams with determination, perseverance, and integrity."
+    ]
+  });
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -36,11 +52,13 @@ export default function Home() {
 
     Promise.all([
       fetch("/api/personalities").then(r => r.json()),
-      fetch("/api/articles").then(r => r.json())
+      fetch("/api/articles").then(r => r.json()),
+      fetch("/api/config").then(r => r.json())
     ])
-      .then(([persData, artData]) => {
+      .then(([persData, artData, configData]) => {
         if (Array.isArray(persData)) setPersonalities(persData);
         if (Array.isArray(artData)) setArticles(artData);
+        if (configData && configData.headline) setConfig(configData);
         setLoading(false);
       })
       .catch((err) => {
@@ -53,22 +71,24 @@ export default function Home() {
     <div className="flex flex-col w-full min-h-screen text-neutral-100 bg-[#020805] font-sans selection:bg-amber-400 selection:text-[#020805]">
       
       {/* 1. Header Hero section */}
-      <header ref={heroRef} className="relative py-28 px-6 max-w-6xl mx-auto border-b border-emerald-950/40 w-full">
+      <header ref={heroRef} className="relative py-20 px-6 max-w-6xl mx-auto border-b border-emerald-950/40 w-full">
         <div className="space-y-6 max-w-4xl">
+          <div className="hero-reveal mb-8">
+            <img src="/logo.jpg" alt="Proud of Pakistan Logo" className="h-24 w-24 md:h-32 md:w-32 rounded-full object-cover border border-amber-400/30 shadow-2xl" />
+          </div>
           <span className="hero-reveal block text-xs font-bold uppercase tracking-widest text-amber-500">
             A Premium National Archive
           </span>
-          <h1 className="hero-reveal text-5xl md:text-8xl font-display font-light tracking-tight leading-[1.05] text-white">
-            Proud of <br />
-            <span className="font-extrabold italic text-amber-400">Pakistan</span>
+          <h1 className="hero-reveal text-4xl md:text-6xl font-display font-extrabold tracking-tight leading-[1.1] text-white">
+            {config.headline}
           </h1>
           <p className="hero-reveal text-lg md:text-xl text-neutral-400 font-light leading-relaxed max-w-2xl pt-4">
-            Honoring exceptional citizens whose achievements, character, and service represent the strength and future of our nation.
+            {config.subheadline}
           </p>
         </div>
       </header>
 
-      {/* 2. Main content: Two Columns Layout (NatGeo style) */}
+      {/* 2. Main content: Two Columns Layout */}
       <section className="max-w-6xl mx-auto px-6 py-20 w-full grid grid-cols-1 lg:grid-cols-12 gap-16">
         
         {/* Left Column: Platform Statement (About Text) */}
@@ -77,24 +97,11 @@ export default function Home() {
             The Platform Mission
           </h2>
           <div className="space-y-6 text-neutral-300 font-light leading-relaxed text-base text-justify">
-            <p className="text-lg text-white font-normal leading-relaxed">
-              &quot;Proud of Pakistan&quot; is not merely a title or an award; it is a prestigious recognition dedicated to individuals whose character, commitment, achievements, and selfless service have brought honor and pride to Pakistan.
-            </p>
-            <p>
-              A true Proud of Pakistan is not defined by fame alone, but by the positive difference they create in the lives of others. These are individuals who place the interests of their nation above personal gain, inspire future generations, and contribute to the progress and prosperity of Pakistan through their actions.
-            </p>
-            <p>
-              The title &quot;Proud of Pakistan&quot; is reserved for exceptional individuals who have demonstrated excellence in diverse fields, including education, healthcare, science, technology, sports, literature, journalism, arts and culture, social welfare, entrepreneurship, public service, law, research, environmental protection, humanitarian work, and national defense.
-            </p>
-            <p>
-              This recognition also honors young achievers, women, men, and senior citizens who, despite limited resources and countless challenges, have pursued their dreams with determination, perseverance, and integrity.
-            </p>
-            <p>
-              The purpose of Proud of Pakistan is not only to celebrate extraordinary accomplishments but also to inspire future generations. It seeks to encourage young people to believe that with honesty, discipline, hard work, and commitment, every citizen has the potential to become a source of pride for the nation.
-            </p>
-            <p className="border-t border-emerald-950/40 pt-6 font-medium text-amber-400">
-              Ultimately, Proud of Pakistan is a celebration of those remarkable people whose lives reflect excellence, compassion, responsibility, and patriotism. They remind us that a strong, progressive, and respected Pakistan is built not only by institutions but by honorable citizens.
-            </p>
+            {config.aboutText.map((p, idx) => (
+              <p key={idx} className={idx === 0 ? "text-lg text-white font-normal leading-relaxed" : ""}>
+                {p}
+              </p>
+            ))}
           </div>
         </div>
 

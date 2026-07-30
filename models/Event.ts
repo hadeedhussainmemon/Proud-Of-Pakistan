@@ -1,1 +1,20 @@
-import mongoose, { Schema, Document, model, models } from "mongoose";\n\nexport interface IEvent extends Document {\n  title: string;\n  date: Date;\n  description?: string;\n  location?: string;\n  status: "upcoming" | "past";\n}\n\nconst EventSchema = new Schema<IEvent>({\n  title: { type: String, required: true },\n  date: { type: Date, required: true },\n  description: { type: String },\n  location: { type: String },\n  status: { type: String, enum: ["upcoming", "past"], required: true },\n});\n\nexport default models.Event || model<IEvent>("Event", EventSchema);\n
+import mongoose, { Schema, Document, model, models } from "mongoose";
+
+export interface IEvent extends Document {
+  title: string;
+  date: Date;
+  description?: string;
+  location?: string;
+  status: "upcoming" | "past";
+}
+
+const EventSchema = new Schema<IEvent>({
+  title: { type: String, required: true },
+  date: { type: Date, required: true },
+  description: { type: String },
+  location: { type: String },
+  status: { type: String, enum: ["upcoming", "past"], required: true },
+});
+
+export default models.Event || model<IEvent>("Event", EventSchema);
+

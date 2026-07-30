@@ -1,1 +1,16 @@
-import mongoose, { Schema, Document, model, models } from "mongoose";\n\nexport interface IGalleryItem extends Document {\n  title: string;\n  category: string;\n  imageUrl: string;\n}\n\nconst GallerySchema = new Schema<IGalleryItem>({\n  title: { type: String, required: true },\n  category: { type: String, required: true },\n  imageUrl: { type: String, required: true },\n});\n\nexport default models.Gallery || model<IGalleryItem>("Gallery", GallerySchema);\n
+import mongoose, { Schema, Document, model, models } from "mongoose";
+
+export interface IGalleryItem extends Document {
+  title: string;
+  category: string;
+  imageUrl: string;
+}
+
+const GallerySchema = new Schema<IGalleryItem>({
+  title: { type: String, required: true },
+  category: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+});
+
+export default models.Gallery || model<IGalleryItem>("Gallery", GallerySchema);
+

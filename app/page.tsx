@@ -23,6 +23,7 @@ interface SiteConfig {
   headline: string;
   subheadline: string;
   aboutText: string[];
+  heroImageUrl?: string;
 }
 
 export default function Home() {
@@ -71,20 +72,24 @@ export default function Home() {
     <div className="flex flex-col w-full min-h-screen text-neutral-100 bg-[#020805] font-sans selection:bg-amber-400 selection:text-[#020805]">
       
       {/* 1. Header Hero section */}
-      <header ref={heroRef} className="relative py-20 px-6 max-w-6xl mx-auto border-b border-emerald-950/40 w-full">
-        <div className="space-y-6 max-w-4xl">
-          <div className="hero-reveal mb-8">
-            <img src="/logo.jpg" alt="Proud of Pakistan Logo" className="h-24 w-24 md:h-32 md:w-32 rounded-full object-cover border border-amber-400/30 shadow-2xl" />
-          </div>
+      <header ref={heroRef} className="relative py-20 px-6 max-w-6xl mx-auto border-b border-emerald-950/40 w-full grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+        <div className="space-y-6 md:col-span-7">
           <span className="hero-reveal block text-xs font-bold uppercase tracking-widest text-amber-500">
             A Premium National Archive
           </span>
           <h1 className="hero-reveal text-4xl md:text-6xl font-display font-extrabold tracking-tight leading-[1.1] text-white">
             {config.headline}
           </h1>
-          <p className="hero-reveal text-lg md:text-xl text-neutral-400 font-light leading-relaxed max-w-2xl pt-4">
+          <p className="hero-reveal text-lg md:text-xl text-neutral-400 font-light leading-relaxed pt-4">
             {config.subheadline}
           </p>
+        </div>
+        <div className="md:col-span-5 hero-reveal flex justify-center">
+          <img 
+            src={config.heroImageUrl || "/hero_visual.jpg"} 
+            alt="Pakistan Heritage Artwork" 
+            className="h-72 w-72 md:h-96 md:w-96 rounded-2xl object-cover border border-emerald-950/40 shadow-2xl"
+          />
         </div>
       </header>
 

@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Footer() {
+  const [logoUrl, setLogoUrl] = useState("/logo.jpg");
+
   const links = [
     { name: "News", href: "/blog" },
     { name: "Gallery", href: "/gallery" },
@@ -10,6 +13,17 @@ export default function Footer() {
     { name: "Profile Features", href: "/personalities" },
     { name: "About", href: "/about" }
   ];
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.logoUrl) {
+          setLogoUrl(data.logoUrl);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <footer className="border-t border-emerald-950/40 bg-[#020805] text-neutral-400 py-16 px-6 font-sans">
@@ -19,7 +33,7 @@ export default function Footer() {
         <div className="md:col-span-5 space-y-6">
           <div className="flex items-center gap-3">
             <img 
-              src="/logo.jpg" 
+              src={logoUrl} 
               alt="Proud of Pakistan Logo" 
               className="h-12 w-12 rounded-full object-cover border border-amber-400/35"
             />

@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { Search, Menu, X, User, Globe } from "lucide-react";
 import { animate } from "animejs";
+import { useSession } from "next-auth/react";
 
 export default function Navbar() {
+  const { data: session } = useSession();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("/logo.jpg");
   const menuRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
@@ -16,8 +19,22 @@ export default function Navbar() {
     { name: "Upcoming Events", href: "/events" },
     { name: "Past Events", href: "/events" },
     { name: "Profile Features", href: "/personalities" },
-    { name: "About", href: "/about" }
+    { name: "About", href: "/about" },
+    ...(session?.user && (session.user as any).role === "Admin"
+      ? [{ name: "Admin Dashboard", href: "/admin/dashboard" }]
+      : [])
   ];
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.logoUrl) {
+          setLogoUrl(data.logoUrl);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (isMobileOpen && sidebarRef.current) {
@@ -49,7 +66,7 @@ export default function Navbar() {
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 text-xl font-display font-extrabold tracking-wider text-white">
-            <img src="/logo.jpg" alt="Proud of Pakistan Logo" className="h-10 w-10 rounded-full object-cover border border-amber-400" />
+            <img src={logoUrl} alt="Proud of Pakistan Logo" className="h-10 w-10 rounded-full object-cover border border-amber-400" />
             <span className="text-base sm:text-lg">PROUD OF PAKISTAN</span>
           </Link>
 
@@ -59,7 +76,7 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="px-4 py-2 text-sm font-semibold tracking-wide text-emerald-100/80 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-semibold tracking-wide text-emerald-100/80 hover:text-amber-400 hover:bg-white/5 rounded-lg transition-colors"
               >
                 {link.name}
               </Link>

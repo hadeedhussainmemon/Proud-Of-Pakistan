@@ -16,7 +16,13 @@ export default function AdminDashboard() {
   const [artForm, setArtForm] = useState({ title: "", category: "History", subtitle: "", content: "" });
   
   // Site Config & Security states
-  const [siteConfig, setSiteConfig] = useState({ headline: "", subheadline: "" });
+  const [siteConfig, setSiteConfig] = useState({ 
+    headline: "", 
+    subheadline: "",
+    logoUrl: "",
+    faviconUrl: "",
+    heroImageUrl: ""
+  });
   const [securityForm, setSecurityForm] = useState({ newPassword: "" });
 
   const fetchData = () => {
@@ -29,7 +35,15 @@ export default function AdminDashboard() {
       .then(([p, a, c]) => {
         if (Array.isArray(p)) setPersonalities(p);
         if (Array.isArray(a)) setArticles(a);
-        if (c && c.headline) setSiteConfig({ headline: c.headline, subheadline: c.subheadline });
+        if (c && c.headline) {
+          setSiteConfig({ 
+            headline: c.headline, 
+            subheadline: c.subheadline,
+            logoUrl: c.logoUrl || "/logo.jpg",
+            faviconUrl: c.faviconUrl || "/favicon.ico",
+            heroImageUrl: c.heroImageUrl || "/hero_visual.jpg"
+          });
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -144,7 +158,7 @@ export default function AdminDashboard() {
             {/* Site Configuration */}
             <form onSubmit={handleUpdateConfig} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
               <h2 className="text-lg font-bold text-amber-400 flex items-center gap-1.5 border-b border-emerald-500/10 pb-2">
-                <Settings className="h-5 w-5" /> Homepage Headline & Settings
+                <Settings className="h-5 w-5" /> Homepage Headline & Brand Assets
               </h2>
               <div>
                 <label className="text-xs text-neutral-300 block mb-1">Headline Text</label>
@@ -166,8 +180,38 @@ export default function AdminDashboard() {
                   className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
                 />
               </div>
+              <div>
+                <label className="text-xs text-neutral-300 block mb-1">Logo Asset URL</label>
+                <input
+                  type="text"
+                  value={siteConfig.logoUrl}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, logoUrl: e.target.value })}
+                  required
+                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-neutral-300 block mb-1">Favicon Asset URL</label>
+                <input
+                  type="text"
+                  value={siteConfig.faviconUrl}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, faviconUrl: e.target.value })}
+                  required
+                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-neutral-300 block mb-1">Hero Image Visual URL</label>
+                <input
+                  type="text"
+                  value={siteConfig.heroImageUrl}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, heroImageUrl: e.target.value })}
+                  required
+                  className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+                />
+              </div>
               <button type="submit" className="w-full py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold transition-all text-xs">
-                Update Homepage Configuration
+                Update Brand & Content Config
               </button>
             </form>
 

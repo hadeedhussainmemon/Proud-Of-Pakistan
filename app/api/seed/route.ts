@@ -4,6 +4,7 @@ import User, { UserRole } from "@/models/User";
 import Personality from "@/models/Personality";
 import Business from "@/models/Business";
 import Article from "@/models/Article";
+import SiteConfig from "@/models/SiteConfig";
 
 export async function GET() {
   try {
@@ -14,6 +15,7 @@ export async function GET() {
     await Personality.deleteMany({});
     await Business.deleteMany({});
     await Article.deleteMany({});
+    await SiteConfig.deleteMany({});
 
     // 2. Seed Users
     const adminUser = await User.create({
@@ -30,7 +32,48 @@ export async function GET() {
       role: UserRole.CONTRIBUTOR,
     });
 
-    // 3. Seed Personalities
+    // 3. Seed site configuration with the user's specific text blocks
+    await SiteConfig.create({
+      key: "main",
+      headline: "Proud of Pakistan – A Symbol of National Honor, Excellence, and Inspiration",
+      subheadline: "Honoring exceptional citizens whose achievements, character, and service represent the strength and future of our nation.",
+      logoUrl: "/logo.jpg",
+      faviconUrl: "/favicon.ico",
+      heroImageUrl: "/hero_visual.jpg",
+      
+      aboutIntro: "Proud of Pakistan is a prestigious national recognition platform established to honor extraordinary individuals whose achievements, leadership, innovation, integrity, and selfless service have made a meaningful contribution to Pakistan and its people.\n\nWe believe that every nation is strengthened by recognizing those who dedicate their lives to excellence, inspire others through their actions, and create lasting positive change. Proud of Pakistan exists to celebrate these remarkable individuals and ensure that their contributions receive the recognition they truly deserve.\n\nOur platform embraces excellence across every sector of society, including education, healthcare, science, technology, sports, arts, literature, media, entrepreneurship, public service, social welfare, environmental sustainability, research, law, and national defense. Every individual we recognize represents the resilience, talent, and limitless potential of Pakistan.\n\nMore than an awards platform, Proud of Pakistan is a national movement committed to promoting merit, celebrating achievement, and inspiring future generations to serve the nation with honor, integrity, and dedication.",
+      
+      vision: "Our vision is to establish Proud of Pakistan as the country's most respected and trusted national recognition platform, where excellence is celebrated, integrity is rewarded, and service to humanity is honored.\n\nWe envision a Pakistan where talented individuals from every province, city, and community receive equal opportunities to be recognized for their contributions regardless of their background, profession, or social status.\n\nOur long-term vision is to inspire generations of Pakistanis to pursue excellence, embrace innovation, demonstrate leadership, and dedicate their talents toward building a peaceful, prosperous, progressive, and globally respected Pakistan.",
+      
+      mission: "Our mission is to identify, recognize, honor, and promote individuals whose exceptional achievements have brought pride and dignity to Pakistan.\n\nWe are committed to creating opportunities that celebrate excellence, encourage innovation, strengthen patriotism, and inspire responsible citizenship.\n\nThrough national recognition programs, partnerships, educational initiatives, media engagement, and community collaboration, we strive to showcase inspiring success stories that motivate future generations to dream bigger, work harder, and serve society with sincerity.\n\nWe firmly believe that recognition creates inspiration, and inspiration creates transformation.",
+      
+      coreValues: [
+        { name: "Excellence", description: "We celebrate outstanding achievements and encourage the highest standards in every field." },
+        { name: "Integrity", description: "Honesty, transparency, ethics, and accountability remain the foundation of every decision we make." },
+        { name: "Patriotism", description: "We promote love for Pakistan by recognizing those who elevate the nation's image through their achievements." },
+        { name: "Service", description: "We honor individuals whose work improves lives and creates positive social impact." },
+        { name: "Leadership", description: "We believe true leaders inspire others through vision, responsibility, and action." },
+        { name: "Innovation", description: "We encourage creativity, research, technology, and new ideas that contribute to national development." },
+        { name: "Equality", description: "Every deserving individual deserves equal recognition regardless of gender, ethnicity, religion, region, or socioeconomic background." },
+        { name: "Respect", description: "Every achievement deserves appreciation, and every contributor deserves dignity." }
+      ],
+      
+      objectives: "Our objectives are to discover hidden talent, recognize outstanding individuals, and inspire excellence throughout Pakistan.\n\nWe aim to encourage youth leadership, strengthen national unity, promote positive role models, and build a culture where merit is respected above all else.\n\nWe seek to create partnerships between educational institutions, government organizations, businesses, media, NGOs, and community leaders to support talent development and social progress.\n\nOur objective is also to project a positive image of Pakistan by highlighting the remarkable achievements of Pakistanis at both national and international levels.",
+      
+      selectionCriteria: "Every recipient of Proud of Pakistan is selected through a fair, transparent, and merit-based evaluation process.\n\nThe selection committee considers several important factors, including:\n• Exceptional achievements within the individual's profession or field.\n• Positive impact on society and community development.\n• Leadership, innovation, and creativity.\n• Professional excellence and ethical conduct.\n• Humanitarian contributions and social responsibility.\n• National or international recognition.\n• Consistency, dedication, and long-term commitment.\n• Inspiration provided to future generations.\n\nRecognition is based solely on merit, integrity, and measurable contribution.",
+      
+      categories: "Proud of Pakistan proudly recognizes excellence across diverse sectors, including:\n\nEducation\nHealthcare\nScience & Technology\nSports\nBusiness & Entrepreneurship\nArts & Culture\nLiterature\nMedia & Journalism\nSocial Welfare\nHumanitarian Services\nEnvironmental Sustainability\nResearch & Innovation\nWomen Empowerment\nYouth Leadership\nCommunity Development\nPublic Service\nLaw & Justice\nNational Defense\nLifetime Achievement\nSpecial Recognition Awards\n\nAdditional categories may be introduced to recognize emerging fields and outstanding contributions to society.",
+      
+      whyUs: "Every successful nation celebrates its heroes. Proud of Pakistan exists because countless extraordinary individuals serve the nation with dedication but often remain unrecognized.\n\nWe believe recognition is not merely an award—it is encouragement, appreciation, and inspiration. By honoring excellence, we motivate future generations to pursue meaningful success while contributing positively to society.\n\nProud of Pakistan is committed to preserving the stories of remarkable Pakistanis so they can inspire millions and become symbols of hope, resilience, and national pride.",
+      
+      founderMessage: "Welcome to Proud of Pakistan.\n\nThis platform was created with one simple but powerful belief: every individual who serves Pakistan with honesty, excellence, and dedication deserves recognition.\n\nThroughout our nation, countless people work tirelessly to improve lives, strengthen communities, advance knowledge, and represent Pakistan with dignity. Many of these remarkable individuals remain unseen despite their extraordinary contributions.\n\nProud of Pakistan was established to change that.\n\nOur mission is to celebrate those who inspire others through their achievements, values, and commitment to humanity. We believe that recognizing excellence encourages more excellence, and honoring service inspires more service.\n\nTogether, let us build a future where achievement is respected, character is valued, and every deserving Pakistani receives the recognition they have earned.\n\nThank you for being part of this journey toward a stronger, brighter, and more respected Pakistan.",
+      
+      impact: "Proud of Pakistan is committed to creating lasting national impact by recognizing excellence, inspiring youth, and promoting positive social change.\n\nOur platform connects extraordinary individuals with communities, institutions, businesses, media organizations, and future leaders.\n\nEach recognition represents more than an achievement—it becomes a story of hope, resilience, determination, and inspiration that encourages countless others to believe in their own potential.\n\nOur long-term impact is measured not only by the number of awards presented but by the lives inspired, opportunities created, partnerships established, and positive change generated throughout Pakistan.",
+      
+      joinUs: "Building a stronger Pakistan is a shared responsibility.\n\nWhether you are an educator, entrepreneur, athlete, researcher, healthcare professional, artist, social worker, business leader, student, public servant, or community volunteer, your contribution matters.\n\nWe invite individuals, organizations, educational institutions, corporate partners, media organizations, and community leaders to become part of the Proud of Pakistan movement.\n\nTogether, we can identify hidden talent, celebrate excellence, encourage innovation, strengthen national unity, and inspire future generations to build a Pakistan that every citizen can proudly call home.\n\nJoin Proud of Pakistan today, because together we celebrate excellence, honor service, and inspire the future of our nation."
+    });
+
+    // 4. Seed Personalities
     const personalities = await Personality.create([
       {
         name: "Dr. Abdus Salam",
@@ -100,65 +143,6 @@ export async function GET() {
           { year: "1997", event: "Secured Guinness World Record for ambulance network" }
         ],
         sponsored: false
-      },
-      {
-        name: "Arshad Nadeem",
-        slug: "arshad-nadeem",
-        category: "Sports",
-        biography: "Arshad Nadeem is a Pakistani javelin thrower who won the Gold Medal at the 2024 Paris Olympics with an Olympic record throw of 92.97 meters, ending Pakistan's 32-year Olympic medal drought.",
-        birthDate: new Date("1997-01-02"),
-        achievements: [
-          "Olympic Gold Medal (Paris 2024)",
-          "Olympic Record Throw of 92.97m",
-          "Commonwealth Games Gold Medal (2022)"
-        ],
-        images: ["/images/arshad-nadeem.jpg"],
-        featured: true,
-        company: "Pakistan Athletics",
-        awards: ["Olympic Gold Medal", "Hilal-e-Imtiaz"],
-        timeline: [
-          { year: "1997", event: "Born in Mian Channu, Punjab" },
-          { year: "2022", event: "Won Gold at Commonwealth Games" },
-          { year: "2024", event: "Won Olympic Gold with a record 92.97m throw" }
-        ],
-        sponsored: false
-      }
-    ]);
-
-    // 4. Seed Businesses
-    const businesses = await Business.create([
-      {
-        name: "Systems Limited",
-        slug: "systems-limited",
-        category: "Technology",
-        description: "Systems Limited is a global pioneer in IT services and software exports. Founded in 1977, the company has consistently delivered state-of-the-art software solutions, earning recognition as a leading digital enterprise in Pakistan.",
-        websiteUrl: "https://www.systemsltd.com",
-        featured: true,
-        services: ["Software Development", "BPO Services", "Cloud & Infrastructure"],
-        products: ["SysPay", "Retail Platforms"],
-        premium: true
-      },
-      {
-        name: "Habib Bank Limited (HBL)",
-        slug: "hbl",
-        category: "Finance",
-        description: "Habib Bank Limited (HBL) is a commercial bank based in Karachi, Pakistan. It is the largest bank in Pakistan by assets, operating a massive branch network domestically and internationally, powering local infrastructure and development.",
-        websiteUrl: "https://www.hbl.com",
-        featured: true,
-        services: ["Commercial Banking", "Consumer Banking", "Digital Finance"],
-        products: ["HBL Mobile App", "HBL Konnect"],
-        premium: true
-      },
-      {
-        name: "National Foods",
-        slug: "national-foods",
-        category: "Food Processing",
-        description: "National Foods is a premium packaged food brand bringing traditional Pakistani spices, recipe mixes, pickles, and sauces to household tables across the globe.",
-        websiteUrl: "https://nfoods.com",
-        featured: true,
-        services: ["Food Manufacturing", "Exportation"],
-        products: ["Recipe Spices", "Pickles", "Ketchup"],
-        premium: false
       }
     ]);
 
@@ -188,46 +172,18 @@ export async function GET() {
         authorId: contributorUser._id,
         readTime: "8 min",
         featured: true,
-        relatedBusinesses: [businesses[0]._id],
         province: "Punjab",
         city: "Lahore"
-      },
-      {
-        title: "K2: The Wild Mountain Path and Tourism Opportunities",
-        subtitle: "A detailed guide to trekking Gilgit-Baltistan's crown jewel.",
-        slug: "k2-wild-mountain",
-        category: "Tourism",
-        tags: ["Tourism", "Mountains", "Gilgit-Baltistan"],
-        content: "<p>K2, the world's second-highest peak, remains the ultimate test for mountaineers. This guide outlines the Karakoram highway routes, basecamp trekking tips, and environmental conservation guidelines for travelers.</p>",
-        authorId: adminUser._id,
-        readTime: "10 min",
-        featured: true,
-        province: "Gilgit-Baltistan",
-        touristPlace: "K2 Basecamp"
-      },
-      {
-        title: "Indus Valley Civilizations: Mohenjo-daro & Harappa Heritage",
-        subtitle: "Unearthing the advanced urban planning of 3300 BCE.",
-        slug: "indus-valley-civilizations",
-        category: "History",
-        tags: ["History", "Heritage", "Sindh"],
-        content: "<p>Discover the grid architecture, drainage systems, and cultural items discovered in Mohenjo-daro (Sindh) and Harappa (Punjab), dating back over 5000 years.</p>",
-        authorId: adminUser._id,
-        readTime: "12 min",
-        featured: true,
-        province: "Sindh",
-        city: "Larkana",
-        historicalEvent: "Bronze Age Settlements"
       }
     ]);
 
     return NextResponse.json({
       success: true,
-      message: "Database seeded successfully with rich dynamic content for all pages!",
+      message: "Database seeded successfully with dynamic text blocks and configs!",
       usersCreated: 2,
-      personalitiesCreated: 4,
-      businessesCreated: 3,
-      articlesCreated: 4,
+      personalitiesCreated: 3,
+      articlesCreated: 2,
+      configSeeded: true
     });
   } catch (error: any) {
     return NextResponse.json({

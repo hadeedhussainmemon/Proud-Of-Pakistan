@@ -3,6 +3,7 @@ import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import AuthProvider from "@/components/providers/AuthProvider";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -26,10 +27,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${outfit.variable} ${inter.variable} h-full antialiased dark`}>
-      <body className="min-h-full flex flex-col bg-emerald-990 text-white font-sans selection:bg-amber-400 selection:text-emerald-950">
-        <Navbar />
-        <main className="flex-grow pt-16 flex flex-col">{children}</main>
-        <Footer />
+      <body className="min-h-full flex flex-col bg-[#020805] text-white font-sans selection:bg-amber-400 selection:text-[#020805]">
+        <AuthProvider>
+          <Navbar />
+          <main className="flex-grow pt-16 flex flex-col">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

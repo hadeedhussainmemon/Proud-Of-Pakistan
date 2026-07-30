@@ -73,19 +73,86 @@ export async function GET() {
       joinUs: "Building a stronger Pakistan is a shared responsibility.\n\nWhether you are an educator, entrepreneur, athlete, researcher, healthcare professional, artist, social worker, business leader, student, public servant, or community volunteer, your contribution matters.\n\nWe invite individuals, organizations, educational institutions, corporate partners, media organizations, and community leaders to become part of the Proud of Pakistan movement.\n\nTogether, we can identify hidden talent, celebrate excellence, encourage innovation, strengthen national unity, and inspire future generations to build a Pakistan that every citizen can proudly call home.\n\nJoin Proud of Pakistan today, because together we celebrate excellence, honor service, and inspire the future of our nation."
     });
 
-    // 4. Seed Personalities
+    // 4. Seed Top 10 Personalities of Pakistan
     const personalities = await Personality.create([
+      {
+        name: "Quaid-e-Azam Muhammad Ali Jinnah",
+        slug: "muhammad-ali-jinnah",
+        category: "Leadership",
+        biography: "Muhammad Ali Jinnah was a barrister, politician and the founder of Pakistan. Jinnah served as the leader of the All-India Muslim League from 1913 until the nation's independence on 14 August 1947, and then as the dominion's first Governor-General.",
+        birthDate: new Date("1876-12-25"),
+        deathDate: new Date("1948-09-11"),
+        achievements: [
+          "Founder of the Islamic Republic of Pakistan",
+          "First Governor-General of Pakistan",
+          "Leader of the All-India Muslim League"
+        ],
+        images: ["/images/jinnah.jpg"],
+        featured: true,
+        company: "Government of Pakistan",
+        awards: ["Baba-e-Qaum (Father of the Nation)"],
+        timeline: [
+          { year: "1876", event: "Born in Karachi, Sindh" },
+          { year: "1913", event: "Joined All-India Muslim League" },
+          { year: "1947", event: "Declaration of Independence & appointed Governor-General" }
+        ],
+        sponsored: false
+      },
+      {
+        name: "Liaquat Ali Khan",
+        slug: "liaquat-ali-khan",
+        category: "Leadership",
+        biography: "Liaquat Ali Khan was a Pakistani statesman, lawyer and political theorist who served as the first Prime Minister of Pakistan, playing a key role in building the new state's foundations.",
+        birthDate: new Date("1895-10-01"),
+        deathDate: new Date("1951-10-16"),
+        achievements: [
+          "First Prime Minister of Pakistan",
+          "Presented the Objectives Resolution in 1949",
+          "First Defense Minister of Pakistan"
+        ],
+        images: ["/images/liaquat.jpg"],
+        featured: true,
+        company: "Government of Pakistan",
+        awards: ["Quaid-e-Millat (Leader of the Nation)"],
+        timeline: [
+          { year: "1895", event: "Born in Karnal, Punjab" },
+          { year: "1947", event: "Appointed as the first Prime Minister of Pakistan" },
+          { year: "1949", event: "Introduced the landmark Objectives Resolution" }
+        ],
+        sponsored: false
+      },
+      {
+        name: "A. K. Fazlul Huq",
+        slug: "fazlul-huq",
+        category: "Leadership",
+        biography: "Abul Kasem Fazlul Huq was a notable statesman who presented the historic Lahore Resolution (Pakistan Resolution) in 1940. He served as the first Chief Minister of East Bengal and Governor of East Pakistan.",
+        birthDate: new Date("1873-10-26"),
+        deathDate: new Date("1962-04-27"),
+        achievements: [
+          "Presented the historic Lahore Resolution (1940)",
+          "First Chief Minister of East Bengal",
+          "Founder of the Krishak Praja Party"
+        ],
+        images: ["/images/fazlul-huq.jpg"],
+        featured: true,
+        company: "Government of East Bengal",
+        awards: ["Sher-e-Bangla (Tiger of Bengal)"],
+        timeline: [
+          { year: "1873", event: "Born in Bakerganj, Bengal Presidency" },
+          { year: "1940", event: "Presented the Lahore Resolution advocating for a separate nation" },
+          { year: "1954", event: "Appointed Chief Minister of East Bengal" }
+        ],
+        sponsored: false
+      },
       {
         name: "Dr. Abdus Salam",
         slug: "abdus-salam",
         category: "Science",
-        biography: "Dr. Abdus Salam was a Pakistani theoretical physicist. He shared the 1979 Nobel Prize in Physics with Sheldon Glashow and Steven Weinberg for his contribution to the electroweak unification theory. He was the first Pakistani to receive a Nobel Prize in science.",
+        biography: "Dr. Abdus Salam was a theoretical physicist who shared the 1979 Nobel Prize in Physics for electroweak unification. He was the first Pakistani to win a Nobel Prize in science.",
         birthDate: new Date("1926-01-29"),
         deathDate: new Date("1996-11-21"),
         achievements: [
           "Nobel Prize in Physics (1979)",
-          "Hughes Medal (1990)",
-          "Royal Medal (1978)",
           "Founded the International Centre for Theoretical Physics (ICTP)"
         ],
         images: ["/images/abdus-salam.jpg"],
@@ -94,8 +161,50 @@ export async function GET() {
         awards: ["Nobel Prize in Physics", "Hughes Medal"],
         timeline: [
           { year: "1926", event: "Born in Jhang, Punjab" },
-          { year: "1957", event: "Appointed Professor of Theoretical Physics at Imperial College" },
           { year: "1979", event: "Awarded Nobel Prize in Physics" }
+        ],
+        sponsored: false
+      },
+      {
+        name: "Wasim Akram",
+        slug: "wasim-akram",
+        category: "Sports",
+        biography: "Wasim Akram is a former Pakistani cricketer, widely regarded as the greatest fast bowler in the history of cricket. Known as the 'King of Swing', he pioneered reverse swing bowling.",
+        birthDate: new Date("1966-06-03"),
+        achievements: [
+          "First bowler to reach 500 ODI wickets",
+          "Pioneer of Reverse Swing Bowling",
+          "1992 Cricket World Cup Champion"
+        ],
+        images: ["/images/wasim-akram.jpg"],
+        featured: true,
+        company: "Pakistan Cricket Board",
+        awards: ["Pride of Performance", "Hilal-e-Imtiaz"],
+        timeline: [
+          { year: "1966", event: "Born in Lahore, Punjab" },
+          { year: "1992", event: "Helped win the Cricket World Cup in Australia" },
+          { year: "2003", event: "Retired as the highest wicket-taker in ODI history" }
+        ],
+        sponsored: false
+      },
+      {
+        name: "Abdul Sattar Edhi",
+        slug: "abdul-sattar-edhi",
+        category: "Philanthropy",
+        biography: "Abdul Sattar Edhi was a humanitarian who founded the Edhi Foundation, which runs the world's largest volunteer ambulance network, alongside homeless and rehab centers.",
+        birthDate: new Date("1928-02-28"),
+        deathDate: new Date("2016-07-08"),
+        achievements: [
+          "Guinness World Record for largest volunteer ambulance service",
+          "Ramon Magsaysay Award (1986)"
+        ],
+        images: ["/images/edhi.jpg"],
+        featured: true,
+        company: "Edhi Foundation",
+        awards: ["Nishan-e-Imtiaz", "Lenin Peace Prize"],
+        timeline: [
+          { year: "1928", event: "Born in Bantva, Gujarat" },
+          { year: "1951", event: "Established first clinic in Karachi" }
         ],
         sponsored: false
       },
@@ -103,11 +212,10 @@ export async function GET() {
         name: "Jahangir Khan",
         slug: "jahangir-khan",
         category: "Sports",
-        biography: "Jahangir Khan is a former World No. 1 professional squash player from Pakistan. He is widely considered to be the greatest squash player of all time. During his career, he won the World Open six times and the British Open ten times.",
+        biography: "Jahangir Khan is a former World No. 1 squash player. He won the World Open six times and is famous for an unmatched 555 consecutive match-winning streak.",
         birthDate: new Date("1963-12-10"),
         achievements: [
-          "555 consecutive match wins (longest winning streak in professional sports history)",
-          "6-time World Open Champion",
+          "555 consecutive professional match wins (world record)",
           "10-time British Open Champion"
         ],
         images: ["/images/jahangir-khan.jpg"],
@@ -116,31 +224,73 @@ export async function GET() {
         awards: ["Pride of Performance", "Hilal-e-Imtiaz"],
         timeline: [
           { year: "1963", event: "Born in Karachi, Sindh" },
-          { year: "1981", event: "Became the youngest World Open Champion at age 17" },
-          { year: "1981-1986", event: "Undefeated for 555 consecutive matches" }
+          { year: "1981", event: "Youngest World Open Squash Champion" }
         ],
         sponsored: false
       },
       {
-        name: "Abdul Sattar Edhi",
-        slug: "abdul-sattar-edhi",
-        category: "Philanthropy",
-        biography: "Abdul Sattar Edhi was a Pakistani humanitarian, philanthropist and ascetic who founded the Edhi Foundation, which runs the world's largest volunteer ambulance network, along with homeless shelters, animal shelters, rehab centres and orphanages.",
-        birthDate: new Date("1928-02-28"),
-        deathDate: new Date("2016-07-08"),
+        name: "Allama Muhammad Iqbal",
+        slug: "allama-iqbal",
+        category: "Literature",
+        biography: "Allama Iqbal was a poet, philosopher, and politician, widely regarded as having inspired the Pakistan Movement. He is the national poet of Pakistan, often called 'Poet of the East'.",
+        birthDate: new Date("1877-11-09"),
+        deathDate: new Date("1938-04-21"),
         achievements: [
-          "Ramon Magsaysay Award (1986)",
-          "Lenin Peace Prize (1988)",
-          "Guinness World Record for largest volunteer ambulance service"
+          "Proposed the concept of a separate Muslim state in his 1930 Allahabad Address",
+          "Author of Bang-e-Dara, Bal-e-Jibril, and Zarb-i Kalim",
+          "National Poet of Pakistan"
         ],
-        images: ["/images/edhi.jpg"],
+        images: ["/images/iqbal.jpg"],
         featured: true,
-        company: "Edhi Foundation",
-        awards: ["Nishan-e-Imtiaz", "Lenin Peace Prize"],
+        company: "Muslim League",
+        awards: ["Muffakir-e-Pakistan (The Thinker of Pakistan)"],
         timeline: [
-          { year: "1928", event: "Born in Bantva, Gujarat" },
-          { year: "1951", event: "Established first clinic in Karachi" },
-          { year: "1997", event: "Secured Guinness World Record for ambulance network" }
+          { year: "1877", event: "Born in Sialkot, Punjab" },
+          { year: "1930", event: "Delivered the historic Allahabad Address proposing a homeland" },
+          { year: "1938", event: "Passed away prior to Independence" }
+        ],
+        sponsored: false
+      },
+      {
+        name: "Fatima Jinnah",
+        slug: "fatima-jinnah",
+        category: "Leadership",
+        biography: "Fatima Jinnah was a dental surgeon, biographer and stateswoman. She was the sister of Quaid-e-Azam and co-founded the Pakistan Women's Association to help resettle female refugees.",
+        birthDate: new Date("1893-07-31"),
+        deathDate: new Date("1967-07-09"),
+        achievements: [
+          "Madar-e-Millat (Mother of the Nation)",
+          "Co-founded the Pakistan Women's Association",
+          "Key organizer of the female wing of All-India Muslim League"
+        ],
+        images: ["/images/fatima.jpg"],
+        featured: true,
+        company: "All-India Muslim League",
+        awards: ["Madar-e-Millat"],
+        timeline: [
+          { year: "1893", event: "Born in Karachi, Sindh" },
+          { year: "1947", event: "Led the rehabilitation of refugees post partition" },
+          { year: "1965", event: "Ran in the historic presidential elections" }
+        ],
+        sponsored: false
+      },
+      {
+        name: "Shoaib Akhtar",
+        slug: "shoaib-akhtar",
+        category: "Sports",
+        biography: "Shoaib Akhtar, known as the 'Rawalpindi Express', is a former Pakistani cricketer who set the record for the fastest delivery in cricket history, clocked at 161.3 km/h (100.2 mph).",
+        birthDate: new Date("1975-08-13"),
+        achievements: [
+          "Fastest delivery in cricket history (161.3 km/h)",
+          "Over 400 international wickets for Pakistan"
+        ],
+        images: ["/images/shoaib-akhtar.jpg"],
+        featured: true,
+        company: "Pakistan Cricket Board",
+        awards: ["Fastest Bowler Record Medal"],
+        timeline: [
+          { year: "1975", event: "Born in Rawalpindi, Punjab" },
+          { year: "2003", event: "Bowled the fastest recorded delivery in the World Cup against England" }
         ],
         sponsored: false
       }
@@ -158,7 +308,7 @@ export async function GET() {
         authorId: adminUser._id,
         readTime: "6 min",
         featured: true,
-        relatedPersonalities: [personalities[0]._id],
+        relatedPersonalities: [personalities[3]._id],
         province: "Punjab",
         city: "Jhang"
       },
@@ -179,9 +329,9 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "Database seeded successfully with dynamic text blocks and configs!",
+      message: "Database seeded successfully with Top 10 Personalities of Pakistan!",
       usersCreated: 2,
-      personalitiesCreated: 3,
+      personalitiesCreated: 10,
       articlesCreated: 2,
       configSeeded: true
     });

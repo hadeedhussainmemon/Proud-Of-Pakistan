@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { 
   BarChart3, User, Calendar, FileText, PlusCircle, CheckCircle, 
-  Sparkles, Loader2, Settings, Lock 
+  Sparkles, Loader2, Settings, Lock, Trash2, Edit3 
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -11,10 +11,14 @@ export default function AdminDashboard() {
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Form states for adding items
-  const [persForm, setPersForm] = useState({ name: "", category: "Science", biography: "", achievements: "" });
-  const [artForm, setArtForm] = useState({ title: "", category: "History", subtitle: "", content: "" });
+  // Creator & Editor Form states
+  const [persForm, setPersForm] = useState({ name: "", category: "Science", biography: "", achievements: "", images: "" });
+  const [artForm, setArtForm] = useState({ title: "", category: "History", subtitle: "", content: "", heroImage: "" });
   
+  // Tracking if we are editing an item
+  const [editPersSlug, setEditPersSlug] = useState<string | null>(null);
+  const [editArtSlug, setEditArtSlug] = useState<string | null>(null);
+
   // Site Config & Security states
   const [siteConfig, setSiteConfig] = useState({ 
     headline: "", 
@@ -74,37 +78,107 @@ export default function AdminDashboard() {
     alert("Admin password updated successfully!");
   };
 
-  const handleAddPersonality = async (e: React.FormEvent) => {
+  // --- CRUD: Personalities ---
+  const handleSavePersonality = async (e: React.FormEvent) => {
     e.preventDefault();
     const achievementsArray = persForm.achievements.split(",").map((s) => s.trim()).filter(Boolean);
+    const imagesArray = persForm.images.split(",").map((s) => s.trim()).filter(Boolean);
     const slug = persForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-    await fetch("/api/personalities", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...persForm, achievements: achievementsArray, slug, featured: true }),
-    });
-    setPersForm({ name: "", category: "Science", biography: "", achievements: "" });
+    const payload = { ...persForm, achievements: achievementsArray, images: imagesArray, slug, featured: true };
+
+    if (editPersSlug) {
+      // Update
+      await fetch(`/api/personalities/${editPersSlug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      setEditPersSlug(null);
+      alert("Personality profile updated!");
+    } else {
+      // Create
+      await fetch("/api/personalities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      alert("Personality profile created!");
+    }
+
+    setPersForm({ name: "", category: "Science", biography: "", achievements: "", images: "" });
     fetchData();
   };
 
-  const handleAddArticle = async (e: React.FormEvent) => {
+  const startEditPersonality = (p: any) => {
+    setEditPersSlug(p.slug);
+    setPersForm({
+      name: p.name,
+      category: p.category,
+      biography: p.biography,
+      achievements: Array.isArray(p.achievements) ? p.achievements.join(", ") : "",
+      images: Array.isArray(p.images) ? p.images.join(", ") : ""
+    });
+  };
+
+  const handleDeletePersonality = async (slug: string) => {
+    if (confirm("Are you sure you want to delete this profile?")) {
+      await fetch(`/api/personalities/${slug}`, { method: "DELETE" });
+      fetchData();
+    }
+  };
+
+  // --- CRUD: Articles (News) ---
+  const handleSaveArticle = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = artForm.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-    
-    await fetch("/api/articles", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        ...artForm, 
-        slug, 
-        authorId: "60c72b2f9b1d8b2a5c8e4f1a", 
-        readTime: "5 min",
-        featured: true 
-      }),
-    });
-    setArtForm({ title: "", category: "History", subtitle: "", content: "" });
+    const payload = { 
+      ...artForm, 
+      slug, 
+      authorId: "60c72b2f9b1d8b2a5c8e4f1a", 
+      readTime: "5 min",
+      featured: true 
+    };
+
+    if (editArtSlug) {
+      // Update
+      await fetch(`/api/articles/${editArtSlug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      setEditArtSlug(null);
+      alert("News article updated!");
+    } else {
+      // Create
+      await fetch("/api/articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      alert("News article published!");
+    }
+
+    setArtForm({ title: "", category: "History", subtitle: "", content: "", heroImage: "" });
     fetchData();
+  };
+
+  const startEditArticle = (art: any) => {
+    setEditArtSlug(art.slug);
+    setArtForm({
+      title: art.title,
+      category: art.category,
+      subtitle: art.subtitle || "",
+      content: art.content,
+      heroImage: art.heroImage || ""
+    });
+  };
+
+  const handleDeleteArticle = async (slug: string) => {
+    if (confirm("Are you sure you want to delete this article?")) {
+      await fetch(`/api/articles/${slug}`, { method: "DELETE" });
+      fetchData();
+    }
   };
 
   return (
@@ -239,12 +313,18 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick CMS Creators */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             
-            {/* 1. Add Personality */}
-            <form onSubmit={handleAddPersonality} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
-              <h2 className="text-lg font-bold text-emerald-300 flex items-center gap-1.5 border-b border-emerald-500/10 pb-2">
-                <PlusCircle className="h-5 w-5 text-amber-400" /> Add Featured Hero
+            {/* 1. Add/Edit Personality */}
+            <form onSubmit={handleSavePersonality} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
+              <h2 className="text-lg font-bold text-emerald-300 flex items-center justify-between border-b border-emerald-500/10 pb-2">
+                <span className="flex items-center gap-1.5">
+                  <PlusCircle className="h-5 w-5 text-amber-400" /> 
+                  {editPersSlug ? "Edit Profile Feature" : "Add Featured Hero"}
+                </span>
+                {editPersSlug && (
+                  <button type="button" onClick={() => { setEditPersSlug(null); setPersForm({ name: "", category: "Science", biography: "", achievements: "", images: "" }); }} className="text-xs text-rose-400">Cancel Edit</button>
+                )}
               </h2>
               <input
                 type="text"
@@ -263,6 +343,8 @@ export default function AdminDashboard() {
                 <option value="Philanthropy">Philanthropy</option>
                 <option value="Sports">Sports</option>
                 <option value="Entrepreneurs">Entrepreneurs</option>
+                <option value="Leadership">Leadership</option>
+                <option value="Literature">Literature</option>
               </select>
               <textarea
                 placeholder="Biography (Markdown/Rich text supported)"
@@ -279,15 +361,28 @@ export default function AdminDashboard() {
                 onChange={(e) => setPersForm({ ...persForm, achievements: e.target.value })}
                 className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
               />
+              <input
+                type="text"
+                placeholder="Profile Images URLs (comma separated)"
+                value={persForm.images}
+                onChange={(e) => setPersForm({ ...persForm, images: e.target.value })}
+                className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+              />
               <button type="submit" className="w-full py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold transition-all text-xs">
-                Save & Spotlight Live
+                {editPersSlug ? "Update & Save Spotlight" : "Save & Spotlight Live"}
               </button>
             </form>
 
-            {/* 2. Add Blog Article */}
-            <form onSubmit={handleAddArticle} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
-              <h2 className="text-lg font-bold text-emerald-300 flex items-center gap-1.5 border-b border-emerald-500/10 pb-2">
-                <PlusCircle className="h-5 w-5 text-amber-400" /> Write News & Article
+            {/* 2. Add/Edit Blog Article */}
+            <form onSubmit={handleSaveArticle} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4">
+              <h2 className="text-lg font-bold text-emerald-300 flex items-center justify-between border-b border-emerald-500/10 pb-2">
+                <span className="flex items-center gap-1.5">
+                  <PlusCircle className="h-5 w-5 text-amber-400" /> 
+                  {editArtSlug ? "Edit News Article" : "Write News & Article"}
+                </span>
+                {editArtSlug && (
+                  <button type="button" onClick={() => { setEditArtSlug(null); setArtForm({ title: "", category: "History", subtitle: "", content: "", heroImage: "" }); }} className="text-xs text-rose-400">Cancel Edit</button>
+                )}
               </h2>
               <input
                 type="text"
@@ -314,6 +409,13 @@ export default function AdminDashboard() {
                 <option value="Culture">Culture</option>
                 <option value="Business">Business</option>
               </select>
+              <input
+                type="text"
+                placeholder="Hero Image URL (e.g. /images/news1.jpg)"
+                value={artForm.heroImage}
+                onChange={(e) => setArtForm({ ...artForm, heroImage: e.target.value })}
+                className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
+              />
               <textarea
                 placeholder="Write rich HTML/Text content..."
                 value={artForm.content}
@@ -323,11 +425,63 @@ export default function AdminDashboard() {
                 className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm"
               />
               <button type="submit" className="w-full py-2.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-emerald-950 font-bold transition-all text-xs">
-                Publish Article Live
+                {editArtSlug ? "Update & Save Article" : "Publish Article Live"}
               </button>
             </form>
 
           </div>
+
+          {/* Manage Existing items lists */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-emerald-500/10 pt-12">
+            
+            {/* List Personalities */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-display font-bold">Manage Profile Features</h2>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                {personalities.map((p) => (
+                  <div key={p.slug} className="flex justify-between items-center p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/10">
+                    <div>
+                      <h4 className="font-bold text-white text-sm">{p.name}</h4>
+                      <span className="text-xs text-neutral-400">{p.category}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => startEditPersonality(p)} className="p-2 bg-amber-400/10 border border-amber-400/20 hover:bg-amber-400/25 rounded-lg text-amber-400 transition-colors">
+                        <Edit3 className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleDeletePersonality(p.slug)} className="p-2 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/25 rounded-lg text-rose-400 transition-colors">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* List News Articles */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-display font-bold">Manage News Articles</h2>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                {articles.map((art) => (
+                  <div key={art.slug} className="flex justify-between items-center p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/10">
+                    <div>
+                      <h4 className="font-bold text-white text-sm truncate max-w-[200px]">{art.title}</h4>
+                      <span className="text-xs text-neutral-400">{art.category}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => startEditArticle(art)} className="p-2 bg-amber-400/10 border border-amber-400/20 hover:bg-amber-400/25 rounded-lg text-amber-400 transition-colors">
+                        <Edit3 className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleDeleteArticle(art.slug)} className="p-2 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/25 rounded-lg text-rose-400 transition-colors">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
         </>
       )}
 

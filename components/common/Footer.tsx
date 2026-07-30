@@ -123,12 +123,19 @@ export default function Footer() {
 
       {/* Copy note */}
       <div className="max-w-6xl mx-auto border-t border-emerald-950/40 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-600 gap-4">
-        <span>
-          &copy; {new Date().getFullYear()} Proud of Pakistan. All rights reserved.
-        </span>
-        <span className="font-light">
-          Honoring national excellence, heritage, and character.
-        </span>
+        <div className="flex flex-col gap-1 items-center md:items-start">
+          <span>
+            &copy; {new Date().getFullYear()} Proud of Pakistan. All rights reserved.
+          </span>
+          <span className="font-light">
+            Honoring national excellence, heritage, and character.
+          </span>
+        </div>
+        <div className="flex items-center text-neutral-500 hover:text-amber-400 transition-colors">
+          <a href="https://www.technosedigital.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
+            Powered By <span className="font-bold">Technose Digital</span> www.technosedigital.com
+          </a>
+        </div>
       </div>
     </footer>
   );

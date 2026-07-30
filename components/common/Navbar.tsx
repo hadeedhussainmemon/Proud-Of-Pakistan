@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { Search, Menu, X, User, Globe } from "lucide-react";
+import { Search, Menu, X, User, Globe, LogIn } from "lucide-react";
 import { animate } from "animejs";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -88,9 +88,23 @@ export default function Navbar() {
             <button className="p-2 text-emerald-100/80 hover:text-amber-400 transition-colors">
               <Search className="h-5 w-5" />
             </button>
-            <Link href="/profile" className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:border-amber-400 transition-colors">
-              <User className="h-4 w-4" />
-            </Link>
+            {session?.user ? (
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                title="Sign out"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:border-amber-400 transition-colors font-bold text-sm uppercase"
+              >
+                {session.user.name?.charAt(0) || <User className="h-4 w-4" />}
+              </button>
+            ) : (
+              <Link
+                href="/api/auth/signin"
+                className="flex items-center gap-1.5 px-3 py-2 bg-amber-400 hover:bg-amber-300 text-emerald-950 text-xs font-bold rounded-lg transition-colors"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                Login
+              </Link>
+            )}
 
             {/* Mobile Hamburger */}
             <button
@@ -135,6 +149,26 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+            </div>
+
+            {/* Login / Logout at bottom of sidebar */}
+            <div className="pt-4 border-t border-emerald-500/10">
+              {session?.user ? (
+                <button
+                  onClick={() => { closeMobileMenu(); signOut({ callbackUrl: "/" }); }}
+                  className="w-full flex items-center gap-2 text-rose-400 font-bold text-sm py-2"
+                >
+                  <LogIn className="h-4 w-4" /> Sign Out
+                </button>
+              ) : (
+                <Link
+                  href="/api/auth/signin"
+                  onClick={closeMobileMenu}
+                  className="w-full flex items-center gap-2 bg-amber-400 text-emerald-950 font-bold text-sm py-2.5 px-4 rounded-lg justify-center"
+                >
+                  <LogIn className="h-4 w-4" /> Login
+                </Link>
+              )}
             </div>
           </div>
         </div>

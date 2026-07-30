@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Search, ArrowRight, User, BookOpen, Calendar } from "lucide-react";
@@ -14,7 +14,7 @@ interface SearchResult {
   url: string;
 }
 
-export default function SearchPage() {
+function SearchResults() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") || "";
   
@@ -125,3 +125,14 @@ export default function SearchPage() {
   );
 }
 
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-emerald-990">
+        <Loader2 className="h-10 w-10 text-amber-400 animate-spin" />
+      </div>
+    }>
+      <SearchResults />
+    </Suspense>
+  );
+}

@@ -86,4 +86,6 @@ const ArticleSchema = new Schema<IArticle>({
   },
 });
 
+ArticleSchema.index({ title: "text", content: "text", category: "text" });
+
 export default models.Article || model<IArticle>("Article", ArticleSchema);

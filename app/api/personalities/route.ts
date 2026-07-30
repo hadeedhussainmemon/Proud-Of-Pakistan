@@ -7,12 +7,22 @@ export async function GET(req: Request) {
     await dbConnect();
     const url = new URL(req.url);
     const fetchAll = url.searchParams.get("all") === "true";
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+    const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+    const skip = (page - 1) * limit;
     
     // By default only show approved. Or if status is missing (old records)
     const query = fetchAll ? {} : { $or: [{ status: 'approved' }, { status: { $exists: false } }] };
     
-    const personalities = await Personality.find(query);
-    return NextResponse.json(personalities);
+    const total = await Personality.countDocuments(query);
+    const personalities = await Personality.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit);
+    
+    return NextResponse.json({
+      data: personalities,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

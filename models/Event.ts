@@ -16,5 +16,6 @@ const EventSchema = new Schema<IEvent>({
   status: { type: String, enum: ["upcoming", "past"], required: true },
 });
 
-export default models.Event || model<IEvent>("Event", EventSchema);
+EventSchema.index({ title: "text", description: "text", location: "text" });
 
+export default models.Event || model<IEvent>("Event", EventSchema);

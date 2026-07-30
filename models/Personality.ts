@@ -70,4 +70,6 @@ const PersonalitySchema = new Schema<IPersonality>({
   status: { type: String, enum: ['pending', 'approved'], default: 'approved' },
 });
 
+PersonalitySchema.index({ name: "text", category: "text", biography: "text" });
+
 export default models.Personality || model<IPersonality>("Personality", PersonalitySchema);

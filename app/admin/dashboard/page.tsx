@@ -14,6 +14,8 @@ export default function AdminDashboard() {
   const [gallery, setGallery] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [persPage, setPersPage] = useState(1);
+  const [persTotalPages, setPersTotalPages] = useState(1);
 
   // Forms
   const [persForm, setPersForm] = useState({ name: "", category: "Science", biography: "", achievements: "", images: "", profilePicture: "" });
@@ -40,7 +42,7 @@ export default function AdminDashboard() {
   const fetchData = () => {
     setLoading(true);
     Promise.all([
-      fetch("/api/personalities?all=true").then((r) => r.json()),
+      fetch(`/api/personalities?all=true&page=${persPage}&limit=10`).then((r) => r.json()),
       fetch("/api/articles").then((r) => r.json()),
       fetch("/api/config").then((r) => r.json()),
       fetch("/api/newsletter").then((r) => r.json()),
@@ -48,7 +50,13 @@ export default function AdminDashboard() {
       fetch("/api/gallery").then((r) => r.json()),
     ])
       .then(([p, a, c, s, ev, g]) => {
-        if (Array.isArray(p)) setPersonalities(p);
+        if (p && Array.isArray(p.data)) {
+          setPersonalities(p.data);
+          setPersTotalPages(p.totalPages || 1);
+          setPersPage(p.page || 1);
+        } else if (Array.isArray(p)) {
+          setPersonalities(p);
+        }
         if (Array.isArray(a)) setArticles(a);
         if (Array.isArray(s)) setSubscribers(s);
         if (Array.isArray(ev)) setEvents(ev);
@@ -70,6 +78,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const fetchPersonalities = (page: number) => {
+    fetch(`/api/personalities?all=true&page=${page}&limit=10`)
+      .then(r => r.json())
+      .then(p => {
+        if (p && Array.isArray(p.data)) {
+          setPersonalities(p.data);
+          setPersTotalPages(p.totalPages || 1);
+          setPersPage(p.page || 1);
+        }
+      });
+  };
 
   const handleUpdateConfig = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -480,6 +500,26 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+              {/* Pagination Controls */}
+              {persTotalPages > 1 && (
+                <div className="flex justify-between items-center mt-2 border-t border-emerald-500/10 pt-2">
+                  <button 
+                    onClick={() => fetchPersonalities(persPage - 1)}
+                    disabled={persPage === 1}
+                    className="px-2 py-1 bg-emerald-950/40 rounded text-xs text-emerald-100 disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-[10px] text-emerald-100/50">Page {persPage} of {persTotalPages}</span>
+                  <button 
+                    onClick={() => fetchPersonalities(persPage + 1)}
+                    disabled={persPage === persTotalPages}
+                    className="px-2 py-1 bg-emerald-950/40 rounded text-xs text-emerald-100 disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Articles List */}

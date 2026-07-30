@@ -15,19 +15,17 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
 
-    const regex = new RegExp(q, "i");
-
     // Run all searches in parallel
     const [articles, events, personalities] = await Promise.all([
       ArticleModel.find({
-        $or: [{ title: regex }, { content: regex }, { category: regex }],
+        $text: { $search: q },
       })
         .select("title category slug")
         .limit(10)
         .lean(),
 
       EventModel.find({
-        $or: [{ title: regex }, { description: regex }, { location: regex }],
+        $text: { $search: q },
       })
         .select("title date status")
         .limit(10)
@@ -35,7 +33,7 @@ export async function GET(req: Request) {
 
       PersonalityModel.find({
         status: "approved",
-        $or: [{ name: regex }, { category: regex }, { biography: regex }],
+        $text: { $search: q },
       })
         .select("name category slug image")
         .limit(10)

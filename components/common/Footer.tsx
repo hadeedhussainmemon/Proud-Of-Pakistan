@@ -1,11 +1,82 @@
+"use client";
+
+import Link from "next/link";
+
 export default function Footer() {
+  const links = [
+    { name: "News", href: "/blog" },
+    { name: "Gallery", href: "/gallery" },
+    { name: "Events", href: "/events" },
+    { name: "Profile Features", href: "/personalities" },
+    { name: "About", href: "/about" }
+  ];
+
   return (
-    <footer className="border-t border-emerald-950/20 bg-emerald-950/90 py-8 text-center text-sm text-emerald-100/60">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p>&copy; {new Date().getFullYear()} Proud of Pakistan. All rights reserved.</p>
-        <p className="mt-2 text-xs text-emerald-100/40">
-          Built to celebrate the history, achievements, and destinations of Pakistan.
-        </p>
+    <footer className="border-t border-emerald-950/40 bg-[#020805] text-neutral-400 py-16 px-6 font-sans">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
+        
+        {/* Brand identity block */}
+        <div className="md:col-span-5 space-y-6">
+          <div className="flex items-center gap-3">
+            <img 
+              src="/logo.jpg" 
+              alt="Proud of Pakistan Logo" 
+              className="h-12 w-12 rounded-full object-cover border border-amber-400/35"
+            />
+            <span className="text-lg font-display font-extrabold tracking-wider text-white">
+              PROUD OF PAKISTAN
+            </span>
+          </div>
+          <p className="text-sm text-neutral-500 font-light leading-relaxed max-w-sm">
+            A premium digital archive dedicated to documenting, archiving, and showcasing the achievements, culture, and events that define the honor of Pakistan.
+          </p>
+        </div>
+
+        {/* Navigation links block */}
+        <div className="md:col-span-3 space-y-4">
+          <h4 className="text-xs font-bold tracking-widest uppercase text-white">Navigation</h4>
+          <ul className="space-y-2 text-sm">
+            {links.map((link) => (
+              <li key={link.name}>
+                <Link 
+                  href={link.href}
+                  className="hover:text-amber-400 transition-colors duration-200"
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Newsletter signup block */}
+        <div className="md:col-span-4 space-y-4">
+          <h4 className="text-xs font-bold tracking-widest uppercase text-white">Newsletter</h4>
+          <p className="text-sm text-neutral-500 font-light leading-relaxed">
+            Receive curated notifications regarding national events and featured profile launches.
+          </p>
+          <div className="flex gap-2 max-w-sm pt-2">
+            <input 
+              type="email" 
+              placeholder="Your email address"
+              className="bg-neutral-900 border border-emerald-950/60 rounded px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500 flex-grow"
+            />
+            <button className="bg-amber-400 hover:bg-amber-300 text-[#020805] text-xs font-bold px-4 py-2 rounded transition-colors duration-200 uppercase tracking-wider">
+              Subscribe
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Copy note */}
+      <div className="max-w-6xl mx-auto border-t border-emerald-950/40 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-600 gap-4">
+        <span>
+          &copy; {new Date().getFullYear()} Proud of Pakistan. All rights reserved.
+        </span>
+        <span className="font-light">
+          Honoring national excellence, heritage, and character.
+        </span>
       </div>
     </footer>
   );

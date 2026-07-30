@@ -132,7 +132,7 @@ export default function Home() {
             The Platform Mission
           </h2>
           <div className="space-y-6 text-neutral-300 font-light leading-relaxed text-base text-justify">
-            {config.aboutText.map((p, idx) => (
+            {(config.aboutText || []).map((p, idx) => (
               <p key={idx} className={idx === 0 ? "text-lg text-white font-normal leading-relaxed" : ""}>
                 {p}
               </p>

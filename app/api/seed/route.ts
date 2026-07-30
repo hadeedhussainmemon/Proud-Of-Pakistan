@@ -3,6 +3,7 @@ import dbConnect from "@/lib/db";
 import User, { UserRole } from "@/models/User";
 import Personality from "@/models/Personality";
 import Business from "@/models/Business";
+import Article from "@/models/Article";
 
 export async function GET() {
   try {
@@ -12,6 +13,7 @@ export async function GET() {
     await User.deleteMany({});
     await Personality.deleteMany({});
     await Business.deleteMany({});
+    await Article.deleteMany({});
 
     // 2. Seed Users
     const adminUser = await User.create({
@@ -29,7 +31,7 @@ export async function GET() {
     });
 
     // 3. Seed Personalities
-    await Personality.create([
+    const personalities = await Personality.create([
       {
         name: "Dr. Abdus Salam",
         slug: "abdus-salam",
@@ -78,7 +80,7 @@ export async function GET() {
     ]);
 
     // 4. Seed Businesses
-    await Business.create([
+    const businesses = await Business.create([
       {
         name: "Systems Limited",
         slug: "systems-limited",
@@ -97,12 +99,41 @@ export async function GET() {
       }
     ]);
 
+    // 5. Seed Articles
+    await Article.create([
+      {
+        title: "The electroweak unification theory and Nobel Prize history",
+        subtitle: "Unpacking the legacy of Dr. Abdus Salam's physics achievements.",
+        slug: "electroweak-unification-salam",
+        category: "History",
+        tags: ["Science", "Physics", "Nobel Prize"],
+        content: "<p>Dr. Abdus Salam's work on the electroweak unification theory changed modern physics forever. This article covers the mathematical frameworks, his struggle for international scientific representation, and his founding of the ICTP in Trieste, Italy.</p>",
+        authorId: adminUser._id,
+        readTime: "6 min",
+        featured: true,
+        relatedPersonalities: [personalities[0]._id],
+      },
+      {
+        title: "How Pak-based IT Hubs are Dominating Global Freelance Tech Exports",
+        subtitle: "Startups and software enterprises driving the digital economy forward.",
+        slug: "tech-exports-dominance",
+        category: "Business",
+        tags: ["Technology", "Exports", "Startups"],
+        content: "<p>Pakistani software developers and technology startups are setting international records. With entities like Systems Limited at the vanguard, tech export growth is boosting national GDP and incubating innovative local tech talent.</p>",
+        authorId: contributorUser._id,
+        readTime: "8 min",
+        featured: true,
+        relatedBusinesses: [businesses[0]._id],
+      }
+    ]);
+
     return NextResponse.json({
       success: true,
-      message: "Database seeded successfully!",
+      message: "Database seeded successfully with Articles!",
       usersCreated: 2,
       personalitiesCreated: 3,
       businessesCreated: 2,
+      articlesCreated: 2,
     });
   } catch (error: any) {
     return NextResponse.json({

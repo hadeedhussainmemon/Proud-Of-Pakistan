@@ -5,12 +5,41 @@ import { useEffect, useRef, useState } from "react";
 import { animate, stagger } from "animejs";
 import { 
   Search, ArrowRight, Award, Compass, Landmark, Briefcase, 
-  User, CheckCircle, Sparkles, MapPin, Play, Star, Heart, Share2, Mail 
+  User, CheckCircle, Sparkles, MapPin, Play, Star, Heart, Share2, Mail, Loader2
 } from "lucide-react";
+
+interface Personality {
+  name: string;
+  category: string;
+  biography: string;
+  slug: string;
+  achievements?: string[];
+  featured?: boolean;
+}
+
+interface Business {
+  name: string;
+  category: string;
+  description: string;
+  slug: string;
+}
+
+interface Article {
+  title: string;
+  subtitle?: string;
+  slug: string;
+  category: string;
+  publishedAt: string;
+}
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  const [personalities, setPersonalities] = useState<Personality[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     // Reveal hero content
@@ -29,6 +58,23 @@ export default function Home() {
       easing: "easeInOutExpo",
       duration: 2000
     });
+
+    // Fetch dynamic content
+    Promise.all([
+      fetch("/api/personalities").then(r => r.json()),
+      fetch("/api/businesses").then(r => r.json()),
+      fetch("/api/articles").then(r => r.json())
+    ])
+      .then(([persData, busData, artData]) => {
+        if (Array.isArray(persData)) setPersonalities(persData);
+        if (Array.isArray(busData)) setBusinesses(busData);
+        if (Array.isArray(artData)) setArticles(artData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch homepage data", err);
+        setLoading(false);
+      });
   }, []);
 
   const provinces = [
@@ -40,13 +86,15 @@ export default function Home() {
     { name: "Azad Jammu & Kashmir", capital: "Muzaffarabad", bg: "from-rose-500/20 to-red-700/20", img: "🏞️" },
   ];
 
+  const spotlightPersonality = personalities.find(p => p.slug === "abdus-salam") || personalities[0];
+
   return (
     <div className="flex flex-col w-full min-h-screen text-white bg-emerald-990 overflow-hidden">
       
       {/* 1. Announcement Bar */}
       <div className="bg-gradient-to-r from-emerald-950 via-emerald-800 to-emerald-950 py-3 text-center text-xs font-semibold tracking-wider text-amber-400 border-b border-emerald-500/10">
         🚀 SPOTLIGHT: Celebrating Pakistan's newest technology champions & mountaineering pioneers. 
-        <Link href="/personalities" className="underline ml-2 hover:text-white transition-colors">Learn More &rarr;</Link>
+        <Link href="/blog" className="underline ml-2 hover:text-white transition-colors">Read Blog &rarr;</Link>
       </div>
 
       {/* 2. Hero Section */}
@@ -72,12 +120,12 @@ export default function Home() {
         </p>
 
         <div className="hero-reveal flex flex-wrap gap-4 justify-center">
-          <Link href="/personalities" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-amber-400 text-emerald-950 font-bold hover:bg-amber-300 transition-all shadow-lg hover:shadow-amber-400/20">
-            Explore Hall of Fame
+          <Link href="/blog" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-amber-400 text-emerald-950 font-bold hover:bg-amber-300 transition-all shadow-lg hover:shadow-amber-400/20">
+            Read Editorial Blog
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link href="/about" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all font-semibold">
-            About Project
+          <Link href="/personalities" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all font-semibold">
+            Explore Personalities
           </Link>
         </div>
       </div>
@@ -97,75 +145,80 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 4. Featured Personality Spotlight */}
-      <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
-        <div className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-4 flex items-center gap-2">
-          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-          <span>Editorial Spotlight</span>
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-10 w-10 text-amber-400 animate-spin" />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-emerald-950/20 border border-emerald-500/10 rounded-3xl p-8 lg:p-12 backdrop-blur-md">
-          {/* Avatar Area */}
-          <div className="lg:col-span-4 aspect-square rounded-2xl bg-gradient-to-tr from-emerald-900 to-emerald-950 border border-emerald-500/20 flex flex-col items-center justify-center p-8 text-center text-emerald-100/20 relative overflow-hidden">
-            <User className="h-28 w-28 text-emerald-400/80 mb-4" />
-            <span className="absolute bottom-4 bg-black/40 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold text-amber-400 border border-white/10">
-              PHYSICS & SCIENCE
-            </span>
-          </div>
-          {/* Info Details */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold tracking-wider text-amber-400 px-2 py-0.5 border border-amber-400/30 rounded bg-amber-400/5">
-                NOBEL LAUREATE
-              </span>
-              <span className="flex items-center gap-1 text-emerald-300 text-xs font-semibold">
-                <CheckCircle className="h-4 w-4 text-emerald-400 fill-emerald-950" /> Verified Profile
-              </span>
-            </div>
-            <h2 className="text-3xl lg:text-4xl font-display font-extrabold">Dr. Abdus Salam</h2>
-            <p className="text-emerald-100/70 text-base leading-relaxed">
-              Dr. Abdus Salam was a Pakistani theoretical physicist who shared the 1979 Nobel Prize in Physics with Sheldon Glashow and Steven Weinberg for his contribution to the electroweak unification theory.
-            </p>
-            <div className="flex flex-wrap gap-6 pt-4 border-t border-emerald-500/10">
-              <div>
-                <span className="block text-xs text-emerald-100/50 uppercase">Born</span>
-                <span className="font-semibold text-white">Jhang, Punjab (1926)</span>
+      ) : (
+        <>
+          {/* 4. Featured Personality Spotlight */}
+          {spotlightPersonality && (
+            <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
+              <div className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-4 flex items-center gap-2">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                <span>Editorial Spotlight</span>
               </div>
-              <div>
-                <span className="block text-xs text-emerald-100/50 uppercase">Alma Mater</span>
-                <span className="font-semibold text-white">Punjab University, Cambridge</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-emerald-950/20 border border-emerald-500/10 rounded-3xl p-8 lg:p-12 backdrop-blur-md">
+                <div className="lg:col-span-4 aspect-square rounded-2xl bg-gradient-to-tr from-emerald-900 to-emerald-950 border border-emerald-500/20 flex flex-col items-center justify-center p-8 text-center text-emerald-100/20 relative overflow-hidden">
+                  <User className="h-28 w-28 text-emerald-400/80 mb-4" />
+                  <span className="absolute bottom-4 bg-black/40 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold text-amber-400 border border-white/10">
+                    {spotlightPersonality.category.toUpperCase()}
+                  </span>
+                </div>
+                <div className="lg:col-span-8 space-y-6">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold tracking-wider text-amber-400 px-2 py-0.5 border border-amber-400/30 rounded bg-amber-400/5">
+                      FEATURED HERO
+                    </span>
+                    <span className="flex items-center gap-1 text-emerald-300 text-xs font-semibold">
+                      <CheckCircle className="h-4 w-4 text-emerald-400 fill-emerald-950" /> Verified Profile
+                    </span>
+                  </div>
+                  <h2 className="text-3xl lg:text-4xl font-display font-extrabold">{spotlightPersonality.name}</h2>
+                  <p className="text-emerald-100/70 text-base leading-relaxed line-clamp-3">
+                    {spotlightPersonality.biography}
+                  </p>
+                  {spotlightPersonality.achievements && (
+                    <div className="flex flex-wrap gap-6 pt-4 border-t border-emerald-500/10">
+                      <div>
+                        <span className="block text-xs text-emerald-100/50 uppercase">Key Achievement</span>
+                        <span className="font-semibold text-white">{spotlightPersonality.achievements[0]}</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="pt-4">
+                    <Link href={`/personalities/${spotlightPersonality.slug}`} className="inline-flex items-center gap-2 text-sm font-bold text-amber-400 hover:text-amber-300">
+                      Read Biography & Timeline &rarr;
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="pt-4">
-              <Link href="/personalities/abdus-salam" className="inline-flex items-center gap-2 text-sm font-bold text-amber-400 hover:text-amber-300">
-                Read Biography & Timeline &rarr;
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* 5. Trending Success Stories */}
-      <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
-        <h2 className="text-3xl font-display font-bold mb-8">Trending Success Stories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { tag: "TECH INNOVATION", title: "How Pak-based IT Hubs are Dominating Global Freelance Tech Exports.", icon: Award },
-            { tag: "SPORTS GLORY", title: "Arshad Nadeem: The Historic Javelin Gold Thrower Who Inspired a Nation.", icon: CheckCircle },
-            { tag: "CLIMATE ACTION", title: "Restoring the Delta: The Mangrove Planting Success Stories of Sindh Coastline.", icon: Compass }
-          ].map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <div key={idx} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/5 hover:border-emerald-500/20 transition-all">
-                <span className="text-xs font-bold text-amber-400 tracking-wider block mb-3">{item.tag}</span>
-                <h3 className="text-lg font-bold text-white mb-6 leading-snug">{item.title}</h3>
-                <Link href="/categories" className="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1">
-                  Read Interview &rarr;
-                </Link>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+          {/* 5. Trending Success Stories */}
+          <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
+            <h2 className="text-3xl font-display font-bold mb-8">Trending Success Stories</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { tag: "TECH INNOVATION", title: "How Pak-based IT Hubs are Dominating Global Freelance Tech Exports.", href: "/blog/tech-exports-dominance" },
+                { tag: "SPORTS GLORY", title: "Arshad Nadeem: The Historic Javelin Gold Thrower Who Inspired a Nation.", href: "/blog" },
+                { tag: "SCIENCE HERO", title: "Electroweak Unification and Nobel History: Salam's Continuing Legacy.", href: "/blog/electroweak-unification-salam" }
+              ].map((item, idx) => (
+                <div key={idx} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/5 hover:border-emerald-500/20 transition-all flex flex-col justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-amber-400 tracking-wider block mb-3">{item.tag}</span>
+                    <h3 className="text-lg font-bold text-white mb-6 leading-snug">{item.title}</h3>
+                  </div>
+                  <Link href={item.href} className="text-xs font-semibold text-emerald-400 hover:underline">
+                    Read Article &rarr;
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* 6. Explore Provinces */}
       <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
@@ -183,54 +236,55 @@ export default function Home() {
       </div>
 
       {/* 7. Featured Businesses */}
-      <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
-        <h2 className="text-3xl font-display font-bold mb-8">Featured Local Enterprises & Brands</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { name: "Systems Limited", cat: "IT Solutions", desc: "Pakistan's leading global technology company driving software exports." },
-            { name: "National Foods", cat: "Food Processing", desc: "A premium packaged food brand bringing traditional Pakistani cuisine globally." },
-            { name: "Habib Bank Limited", cat: "Financial Sector", desc: "The country's largest commercial financial institution supporting GDP." }
-          ].map((b, idx) => (
-            <div key={idx} className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/10 hover:border-emerald-500/20 transition-all">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
-                  <Briefcase className="h-5 w-5" />
-                </span>
+      {!loading && (
+        <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
+          <h2 className="text-3xl font-display font-bold mb-8">Featured Local Enterprises & Brands</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {businesses.slice(0, 3).map((b, idx) => (
+              <div key={idx} className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/10 hover:border-emerald-500/20 transition-all flex flex-col justify-between">
                 <div>
-                  <h3 className="font-bold text-white text-lg">{b.name}</h3>
-                  <span className="text-xs text-amber-400 font-semibold">{b.cat}</span>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                      <Briefcase className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <h3 className="font-bold text-white text-lg">{b.name}</h3>
+                      <span className="text-xs text-amber-400 font-semibold">{b.category}</span>
+                    </div>
+                  </div>
+                  <p className="text-emerald-100/60 text-sm leading-relaxed mb-4 line-clamp-3">{b.description}</p>
                 </div>
+                <Link href={`/businesses/${b.slug}`} className="text-xs font-bold text-emerald-300 hover:text-white mt-4">
+                  View Profile Directory &rarr;
+                </Link>
               </div>
-              <p className="text-emerald-100/60 text-sm leading-relaxed mb-4">{b.desc}</p>
-              <Link href="/businesses" className="text-xs font-bold text-emerald-300 hover:text-white">
-                View Profile Directory &rarr;
-              </Link>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 8. Latest Articles */}
-      <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
-        <h2 className="text-3xl font-display font-bold mb-8">Latest Editorial Analysis</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {[
-            { title: "Indus Valley Architecture: Unearthing 5,000 Years of Sewerage & Grid Infrastructure.", date: "July 2026", author: "Dr. Ayesha Malik" },
-            { title: "The Digitization Paradigm: Pakistan's E-Commerce Startups Reaching Series A Funding.", date: "June 2026", author: "Kamran Qureshi" }
-          ].map((art, idx) => (
-            <div key={idx} className="p-8 rounded-3xl bg-emerald-950/10 border border-emerald-500/10 hover:border-emerald-500/20 transition-all flex flex-col justify-between">
-              <div>
-                <span className="text-xs text-amber-400 font-bold block mb-2">{art.date}</span>
-                <h3 className="text-xl font-bold text-white mb-4 leading-snug">{art.title}</h3>
+      {!loading && (
+        <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
+          <h2 className="text-3xl font-display font-bold mb-8">Latest Editorial Analysis</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {articles.slice(0, 2).map((art, idx) => (
+              <div key={idx} className="p-8 rounded-3xl bg-emerald-950/10 border border-emerald-500/10 hover:border-emerald-500/20 transition-all flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-4 leading-snug">{art.title}</h3>
+                  <p className="text-emerald-100/60 text-sm mb-6 line-clamp-2">{art.subtitle}</p>
+                </div>
+                <div className="flex justify-between items-center border-t border-emerald-500/10 pt-4">
+                  <span className="text-xs text-emerald-100/50">Published Editorial</span>
+                  <Link href={`/blog/${art.slug}`} className="text-xs font-semibold text-emerald-300 hover:text-white">
+                    Read Article &rarr;
+                  </Link>
+                </div>
               </div>
-              <div className="flex justify-between items-center border-t border-emerald-500/10 pt-4">
-                <span className="text-xs text-emerald-100/50">By {art.author}</span>
-                <span className="text-xs font-semibold text-emerald-300 hover:text-white">Read Article &rarr;</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 9. Travel Destinations */}
       <div className="max-w-7xl mx-auto px-6 mb-28 w-full">
@@ -238,7 +292,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { name: "K2 Mountain Peak", peak: "8,611m", tag: "Gilgit-Baltistan" },
-            { name: "Lake Saif-ul-Mulook", peak: "Alps Valley", tag: "Kaghan Valley" },
+            { name: "Saif-ul-Mulook Lake", peak: "Alps Valley", tag: "Kaghan Valley" },
             { name: "Derawar Fort", peak: "Cholistan Desert", tag: "Bahawalpur" }
           ].map((dest, idx) => (
             <div key={idx} className="group rounded-2xl overflow-hidden border border-emerald-500/10 bg-emerald-950/20 hover:border-emerald-500/30 transition-all">

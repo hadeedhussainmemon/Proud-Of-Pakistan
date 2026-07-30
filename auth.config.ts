@@ -1,1 +1,23 @@
-import type { NextAuthConfig } from "next-auth";\n\nexport const authConfig = {\n  pages: {\n    signIn: '/login',\n  },\n  callbacks: {\n    async jwt({ token, user }) {\n      if (user) {\n        token.role = (user as any).role || "User";\n      }\n      return token;\n    },\n    async session({ session, token }) {\n      if (session.user) {\n        (session.user as any).role = token.role || "User";\n      }\n      return session;\n    },\n  },\n  providers: [], // Middleware doesn't need providers config\n} satisfies NextAuthConfig;\n
+import type { NextAuthConfig } from "next-auth";
+
+export const authConfig = {
+  pages: {
+    signIn: '/login',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role || "User";
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role || "User";
+      }
+      return session;
+    },
+  },
+  providers: [], // Middleware doesn't need providers config
+} satisfies NextAuthConfig;
+

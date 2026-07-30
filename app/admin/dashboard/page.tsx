@@ -34,7 +34,26 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchData();
+    let active = true;
+    Promise.all([
+      fetch("/api/personalities").then((r) => r.json()),
+      fetch("/api/businesses").then((r) => r.json()),
+      fetch("/api/articles").then((r) => r.json()),
+    ])
+      .then(([p, b, a]) => {
+        if (active) {
+          if (Array.isArray(p)) setPersonalities(p);
+          if (Array.isArray(b)) setBusinesses(b);
+          if (Array.isArray(a)) setArticles(a);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleAddPersonality = async (e: React.FormEvent) => {

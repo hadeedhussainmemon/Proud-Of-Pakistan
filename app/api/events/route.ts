@@ -1,1 +1,25 @@
-import { NextResponse } from "next/server";\nimport dbConnect from "@/lib/db";\nimport Event from "@/models/Event";\n\nexport async function GET() {\n  try {\n    await dbConnect();\n    const events = await Event.find({}).sort({ date: 1 });\n    return NextResponse.json(events);\n  } catch (error: any) {\n    return NextResponse.json({ error: error.message }, { status: 500 });\n  }\n}\n\nexport async function POST(req: Request) {\n  try {\n    await dbConnect();\n    const body = await req.json();\n    const newEvent = await Event.create(body);\n    return NextResponse.json(newEvent, { status: 201 });\n  } catch (error: any) {\n    return NextResponse.json({ error: error.message }, { status: 500 });\n  }\n}\n
+import { NextResponse } from "next/server";
+import dbConnect from "@/lib/db";
+import Event from "@/models/Event";
+
+export async function GET() {
+  try {
+    await dbConnect();
+    const events = await Event.find({}).sort({ date: 1 });
+    return NextResponse.json(events);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    await dbConnect();
+    const body = await req.json();
+    const newEvent = await Event.create(body);
+    return NextResponse.json(newEvent, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+

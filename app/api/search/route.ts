@@ -1,1 +1,76 @@
-import { NextResponse } from "next/server";\nimport dbConnect from "@/lib/db";\nimport ArticleModel from "@/models/Article";\nimport EventModel from "@/models/Event";\nimport PersonalityModel from "@/models/Personality";\n\nexport async function GET(req: Request) {\n  const { searchParams } = new URL(req.url);\n  const q = searchParams.get("q") || "";\n\n  if (!q || q.length < 2) {\n    return NextResponse.json({ results: [] });\n  }\n\n  try {\n    await dbConnect();\n\n    const regex = new RegExp(q, "i");\n\n    // Run all searches in parallel\n    const [articles, events, personalities] = await Promise.all([\n      ArticleModel.find({\n        $or: [{ title: regex }, { content: regex }, { category: regex }],\n      })\n        .select("title category slug")\n        .limit(10)\n        .lean(),\n\n      EventModel.find({\n        $or: [{ title: regex }, { description: regex }, { location: regex }],\n      })\n        .select("title date status")\n        .limit(10)\n        .lean(),\n\n      PersonalityModel.find({\n        status: "approved",\n        $or: [{ name: regex }, { category: regex }, { biography: regex }],\n      })\n        .select("name category slug image")\n        .limit(10)\n        .lean(),\n    ]);\n\n    // Format results into a unified structure\n    const formattedResults = [\n      ...articles.map((a) => ({\n        _id: a._id,\n        title: a.title,\n        type: "Article",\n        subtitle: a.category,\n        url: `/blog/${a.slug}`,\n      })),\n      ...events.map((e) => ({\n        _id: e._id,\n        title: e.title,\n        type: "Event",\n        subtitle: new Date(e.date).toLocaleDateString(),\n        url: `/events`,\n      })),\n      ...personalities.map((p) => ({\n        _id: p._id,\n        title: p.name,\n        type: "Personality",\n        subtitle: p.category,\n        image: p.image,\n        url: `/personalities/${p.slug}`,\n      })),\n    ];\n\n    return NextResponse.json({ results: formattedResults });\n  } catch (error: any) {\n    return NextResponse.json({ error: error.message }, { status: 500 });\n  }\n}\n
+import { NextResponse } from "next/server";
+import dbConnect from "@/lib/db";
+import ArticleModel from "@/models/Article";
+import EventModel from "@/models/Event";
+import PersonalityModel from "@/models/Personality";
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q") || "";
+
+  if (!q || q.length < 2) {
+    return NextResponse.json({ results: [] });
+  }
+
+  try {
+    await dbConnect();
+
+    const regex = new RegExp(q, "i");
+
+    // Run all searches in parallel
+    const [articles, events, personalities] = await Promise.all([
+      ArticleModel.find({
+        $or: [{ title: regex }, { content: regex }, { category: regex }],
+      })
+        .select("title category slug")
+        .limit(10)
+        .lean(),
+
+      EventModel.find({
+        $or: [{ title: regex }, { description: regex }, { location: regex }],
+      })
+        .select("title date status")
+        .limit(10)
+        .lean(),
+
+      PersonalityModel.find({
+        status: "approved",
+        $or: [{ name: regex }, { category: regex }, { biography: regex }],
+      })
+        .select("name category slug image")
+        .limit(10)
+        .lean(),
+    ]);
+
+    // Format results into a unified structure
+    const formattedResults = [
+      ...articles.map((a) => ({
+        _id: a._id,
+        title: a.title,
+        type: "Article",
+        subtitle: a.category,
+        url: `/blog/${a.slug}`,
+      })),
+      ...events.map((e) => ({
+        _id: e._id,
+        title: e.title,
+        type: "Event",
+        subtitle: new Date(e.date).toLocaleDateString(),
+        url: `/events`,
+      })),
+      ...personalities.map((p) => ({
+        _id: p._id,
+        title: p.name,
+        type: "Personality",
+        subtitle: p.category,
+        image: p.image,
+        url: `/personalities/${p.slug}`,
+      })),
+    ];
+
+    return NextResponse.json({ results: formattedResults });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+

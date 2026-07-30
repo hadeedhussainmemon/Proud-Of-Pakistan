@@ -1,1 +1,27 @@
-import { NextResponse } from "next/server";\nimport dbConnect from "@/lib/db";\nimport Event from "@/models/Event";\n\nexport async function PUT(req: Request, { params }: { params: { id: string } }) {\n  try {\n    await dbConnect();\n    const body = await req.json();\n    const updatedEvent = await Event.findByIdAndUpdate(params.id, body, { new: true });\n    if (!updatedEvent) return NextResponse.json({ error: "Not found" }, { status: 404 });\n    return NextResponse.json(updatedEvent);\n  } catch (error: any) {\n    return NextResponse.json({ error: error.message }, { status: 500 });\n  }\n}\n\nexport async function DELETE(req: Request, { params }: { params: { id: string } }) {\n  try {\n    await dbConnect();\n    const deletedEvent = await Event.findByIdAndDelete(params.id);\n    if (!deletedEvent) return NextResponse.json({ error: "Not found" }, { status: 404 });\n    return NextResponse.json({ message: "Deleted successfully" });\n  } catch (error: any) {\n    return NextResponse.json({ error: error.message }, { status: 500 });\n  }\n}\n
+import { NextResponse } from "next/server";
+import dbConnect from "@/lib/db";
+import Event from "@/models/Event";
+
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  try {
+    await dbConnect();
+    const body = await req.json();
+    const updatedEvent = await Event.findByIdAndUpdate(params.id, body, { new: true });
+    if (!updatedEvent) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(updatedEvent);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  try {
+    await dbConnect();
+    const deletedEvent = await Event.findByIdAndDelete(params.id);
+    if (!deletedEvent) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ message: "Deleted successfully" });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+

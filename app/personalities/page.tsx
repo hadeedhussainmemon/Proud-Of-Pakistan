@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Loader2, Linkedin, Facebook, Instagram, Twitter, Globe, Mail, Share2, PlusCircle, User } from "lucide-react";
+import { Search, Loader2, Globe, Mail, Share2, PlusCircle, User } from "lucide-react";
 
 interface SocialLinks {
   linkedin?: string;
@@ -141,13 +141,13 @@ export default function PersonalitiesPage() {
                   <p className="text-emerald-100/60 text-sm mb-6 line-clamp-2">{p.biography}</p>
                   
                   {/* Social Icons row */}
-                  <div className="flex items-center gap-3 mb-6">
-                    {p.socialLinks?.linkedin && <a href={p.socialLinks.linkedin} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Linkedin className="h-4 w-4" /></a>}
-                    {p.socialLinks?.twitter && <a href={p.socialLinks.twitter} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Twitter className="h-4 w-4" /></a>}
-                    {p.socialLinks?.instagram && <a href={p.socialLinks.instagram} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Instagram className="h-4 w-4" /></a>}
-                    {p.socialLinks?.facebook && <a href={p.socialLinks.facebook} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Facebook className="h-4 w-4" /></a>}
-                    {p.website && <a href={p.website} target="_blank" rel="noreferrer" className="text-emerald-400 hover:text-amber-400"><Globe className="h-4 w-4" /></a>}
-                    {p.socialLinks?.contact && <a href={`mailto:${p.socialLinks.contact}`} className="text-emerald-400 hover:text-amber-400"><Mail className="h-4 w-4" /></a>}
+                  <div className="flex flex-wrap items-center gap-2 mb-6">
+                    {p.socialLinks?.linkedin && <a href={p.socialLinks.linkedin} target="_blank" rel="noreferrer" className="text-[10px] uppercase font-bold px-2 py-1 bg-emerald-950/60 rounded text-emerald-400 hover:text-amber-400 border border-emerald-500/20">LinkedIn</a>}
+                    {p.socialLinks?.twitter && <a href={p.socialLinks.twitter} target="_blank" rel="noreferrer" className="text-[10px] uppercase font-bold px-2 py-1 bg-emerald-950/60 rounded text-emerald-400 hover:text-amber-400 border border-emerald-500/20">Twitter</a>}
+                    {p.socialLinks?.instagram && <a href={p.socialLinks.instagram} target="_blank" rel="noreferrer" className="text-[10px] uppercase font-bold px-2 py-1 bg-emerald-950/60 rounded text-emerald-400 hover:text-amber-400 border border-emerald-500/20">Instagram</a>}
+                    {p.socialLinks?.facebook && <a href={p.socialLinks.facebook} target="_blank" rel="noreferrer" className="text-[10px] uppercase font-bold px-2 py-1 bg-emerald-950/60 rounded text-emerald-400 hover:text-amber-400 border border-emerald-500/20">Facebook</a>}
+                    {p.website && <a href={p.website} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-1 bg-emerald-950/60 rounded text-emerald-400 hover:text-amber-400 border border-emerald-500/20"><Globe className="h-3 w-3" /> Web</a>}
+                    {p.socialLinks?.contact && <a href={`mailto:${p.socialLinks.contact}`} className="flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-1 bg-emerald-950/60 rounded text-emerald-400 hover:text-amber-400 border border-emerald-500/20"><Mail className="h-3 w-3" /> Mail</a>}
                   </div>
 
                   {/* Actions */}

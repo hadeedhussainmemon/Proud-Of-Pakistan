@@ -24,8 +24,6 @@ export default function SearchPage() {
 
   useEffect(() => {
     if (!q) {
-      setResults([]);
-      setLoading(false);
       return;
     }
 
@@ -41,7 +39,8 @@ export default function SearchPage() {
       .catch(() => setLoading(false));
   }, [q]);
 
-  const filteredResults = filter === "All" ? results : results.filter(r => r.type === filter);
+  const displayResults = !q ? [] : results;
+  const filteredResults = filter === "All" ? displayResults : displayResults.filter(r => r.type === filter);
 
   const getIcon = (type: string) => {
     if (type === "Article") return <BookOpen className="h-4 w-4 text-emerald-400" />;

@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { 
   BarChart3, User, Calendar, FileText, PlusCircle, CheckCircle, 
-  Sparkles, Loader2, Settings, Lock, Trash2, Edit3, Upload 
+  Sparkles, Loader2, Settings, Lock, Trash2, Edit3, Upload, Mail 
 } from "lucide-react";
 
 export default function AdminDashboard() {
   const [personalities, setPersonalities] = useState<any[]>([]);
   const [articles, setArticles] = useState<any[]>([]);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
 
@@ -36,10 +37,12 @@ export default function AdminDashboard() {
       fetch("/api/personalities").then((r) => r.json()),
       fetch("/api/articles").then((r) => r.json()),
       fetch("/api/config").then((r) => r.json()),
+      fetch("/api/newsletter").then((r) => r.json()),
     ])
-      .then(([p, a, c]) => {
+      .then(([p, a, c, s]) => {
         if (Array.isArray(p)) setPersonalities(p);
         if (Array.isArray(a)) setArticles(a);
+        if (Array.isArray(s)) setSubscribers(s);
         if (c && c.headline) {
           setSiteConfig({ 
             headline: c.headline, 
@@ -205,6 +208,18 @@ export default function AdminDashboard() {
     }
   };
 
+  // --- CRUD: Subscribers ---
+  const handleDeleteSubscriber = async (email: string) => {
+    if (confirm(`Remove subscriber: ${email}?`)) {
+      await fetch("/api/newsletter", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      fetchData();
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-6 py-12 text-white bg-emerald-990">
       
@@ -231,10 +246,11 @@ export default function AdminDashboard() {
       ) : (
         <>
           {/* Quick Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
             {[
               { label: "Total Articles (News)", val: articles.length, icon: FileText, color: "text-blue-400 bg-blue-400/5 border-blue-400/10" },
               { label: "Featured People", val: personalities.length, icon: User, color: "text-amber-400 bg-amber-400/5 border-amber-400/10" },
+              { label: "Subscribers", val: subscribers.length, icon: Mail, color: "text-rose-400 bg-rose-400/5 border-rose-400/10" },
               { label: "Scheduled Events", val: 4, icon: Calendar, color: "text-teal-400 bg-teal-400/5 border-teal-400/10" },
             ].map((stat, idx) => {
               const Icon = stat.icon;
@@ -505,7 +521,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Manage Existing items lists */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-emerald-500/10 pt-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 border-t border-emerald-500/10 pt-12">
             
             {/* List Personalities */}
             <div className="space-y-4">
@@ -537,7 +553,7 @@ export default function AdminDashboard() {
                 {articles.map((art) => (
                   <div key={art.slug} className="flex justify-between items-center p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/10">
                     <div>
-                      <h4 className="font-bold text-white text-sm truncate max-w-[200px]">{art.title}</h4>
+                      <h4 className="font-bold text-white text-sm truncate max-w-[150px]">{art.title}</h4>
                       <span className="text-xs text-neutral-400">{art.category}</span>
                     </div>
                     <div className="flex gap-2">
@@ -550,6 +566,30 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* List Newsletter Subscribers */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-display font-bold flex items-center gap-1.5">
+                <Mail className="h-5 w-5 text-rose-400" /> Subscribers List
+              </h2>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                {subscribers.length === 0 ? (
+                  <p className="text-neutral-500 text-xs py-4">No subscribers found.</p>
+                ) : (
+                  subscribers.map((sub) => (
+                    <div key={sub.email} className="flex justify-between items-center p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/10">
+                      <div className="truncate max-w-[170px]">
+                        <h4 className="font-bold text-white text-xs truncate">{sub.email}</h4>
+                        <span className="text-[10px] text-neutral-500">{new Date(sub.subscribedAt).toLocaleDateString()}</span>
+                      </div>
+                      <button onClick={() => handleDeleteSubscriber(sub.email)} className="p-2 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/25 rounded-lg text-rose-400 transition-colors">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 

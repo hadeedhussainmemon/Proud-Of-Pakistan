@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 export default function Footer() {
   const [logoUrl, setLogoUrl] = useState("/logo.jpg");
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<string | null>(null);
 
   const links = [
     { name: "News", href: "/blog" },
@@ -24,6 +26,30 @@ export default function Footer() {
       })
       .catch(() => {});
   }, []);
+
+  const handleSubscribe = async () => {
+    if (!email || !email.includes("@")) {
+      setStatus("Please enter a valid email address.");
+      return;
+    }
+    setStatus("Subscribing...");
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus("Thank you for subscribing!");
+        setEmail("");
+      } else {
+        setStatus(data.error || "Subscription failed.");
+      }
+    } catch (err) {
+      setStatus("Failed to subscribe due to connection error.");
+    }
+  };
 
   return (
     <footer className="border-t border-emerald-950/40 bg-[#020805] text-neutral-400 py-16 px-6 font-sans">
@@ -69,15 +95,27 @@ export default function Footer() {
           <p className="text-sm text-neutral-500 font-light leading-relaxed">
             Receive curated notifications regarding national events and featured profile launches.
           </p>
-          <div className="flex gap-2 max-w-sm pt-2">
-            <input 
-              type="email" 
-              placeholder="Your email address"
-              className="bg-neutral-900 border border-emerald-950/60 rounded px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500 flex-grow"
-            />
-            <button className="bg-amber-400 hover:bg-amber-300 text-[#020805] text-xs font-bold px-4 py-2 rounded transition-colors duration-200 uppercase tracking-wider">
-              Subscribe
-            </button>
+          <div className="space-y-2">
+            <div className="flex gap-2 max-w-sm pt-2">
+              <input 
+                type="email" 
+                placeholder="Your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-neutral-900 border border-emerald-950/60 rounded px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500 flex-grow"
+              />
+              <button 
+                onClick={handleSubscribe}
+                className="bg-amber-400 hover:bg-amber-300 text-[#020805] text-xs font-bold px-4 py-2 rounded transition-colors duration-200 uppercase tracking-wider"
+              >
+                Subscribe
+              </button>
+            </div>
+            {status && (
+              <p className={`text-xs ${status.includes("Thank you") ? "text-emerald-400" : "text-amber-400"}`}>
+                {status}
+              </p>
+            )}
           </div>
         </div>
 

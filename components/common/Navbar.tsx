@@ -49,10 +49,8 @@ export default function Navbar() {
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 text-xl font-display font-extrabold tracking-wider text-white">
-            <span className="bg-gradient-to-r from-emerald-400 to-amber-400 p-1.5 rounded-lg text-emerald-950">
-              <Globe className="h-5 w-5" />
-            </span>
-            <span>PROUD OF PAKISTAN</span>
+            <img src="/logo.jpg" alt="Proud of Pakistan Logo" className="h-10 w-10 rounded-full object-cover border border-amber-400" />
+            <span className="text-base sm:text-lg">PROUD OF PAKISTAN</span>
           </Link>
 
           {/* Navigation Links */}

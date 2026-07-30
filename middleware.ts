@@ -7,7 +7,7 @@ export default auth((req) => {
 
   // Protect Admin CMS pathways
   if (nextUrl.pathname.startsWith("/admin")) {
-    if (!isLoggedIn) {
+    if (!req.auth) {
       return NextResponse.redirect(new URL("/api/auth/signin", nextUrl));
     }
     

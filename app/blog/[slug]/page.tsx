@@ -1,48 +1,55 @@
-"use client";
-
-import { useState, useEffect, use } from "react";
-import { ArrowLeft, Calendar, BookOpen, User, CheckCircle, Loader2 } from "lucide-react";
+import { Metadata } from "next";
+import { ArrowLeft, Calendar, BookOpen, User, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import dbConnect from "@/lib/db";
+import ArticleModel from "@/models/Article";
+import "@/models/Personality";
+import "@/models/Business";
 
-interface Article {
-  title: string;
-  subtitle?: string;
-  category: string;
-  content: string;
-  readTime: string;
-  publishedAt: string;
-  authorId?: { name: string };
-  relatedPersonalities: { name: string; slug: string }[];
-  relatedBusinesses: { name: string; slug: string }[];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    await dbConnect();
+    const article = await ArticleModel.findOne({ slug });
+    
+    if (!article) {
+      return { title: "Article Not Found | Proud of Pakistan" };
+    }
+
+    return {
+      title: `${article.title} | Proud of Pakistan`,
+      description: article.subtitle || article.content.replace(/<[^>]*>?/gm, '').substring(0, 160) + "...",
+      openGraph: {
+        title: article.title,
+        description: article.subtitle || article.content.replace(/<[^>]*>?/gm, '').substring(0, 160) + "...",
+        url: `https://www.proudofpakistan.com/blog/${slug}`,
+        siteName: "Proud of Pakistan",
+        type: "article",
+        publishedTime: article.publishedAt.toISOString(),
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: article.title,
+        description: article.subtitle || article.content.replace(/<[^>]*>?/gm, '').substring(0, 160) + "...",
+      },
+    };
+  } catch (error) {
+    return { title: "Article | Proud of Pakistan" };
+  }
 }
 
-export default function BlogDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = use(params);
-  const [article, setArticle] = useState<Article | null>(null);
-  const [loading, setLoading] = useState(true);
+export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  let article = null;
 
-  useEffect(() => {
-    fetch(`/api/articles/${slug}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.error) {
-          setArticle(data);
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-10 w-10 text-amber-400 animate-spin" />
-      </div>
-    );
+  try {
+    await dbConnect();
+    const data = await ArticleModel.findOne({ slug }).populate("authorId").populate("relatedPersonalities").populate("relatedBusinesses");
+    if (data) {
+      article = JSON.parse(JSON.stringify(data));
+    }
+  } catch (error) {
+    console.error(error);
   }
 
   if (!article) {
@@ -66,7 +73,7 @@ export default function BlogDetailPage({
             {article.category}
           </span>
           <span className="flex items-center gap-1">
-            <BookOpen className="h-4 w-4 text-emerald-400" /> {article.readTime} Read
+            <BookOpen className="h-4 w-4 text-emerald-400" /> {article.readTime || "5 min"} Read
           </span>
         </div>
 
@@ -88,23 +95,11 @@ export default function BlogDetailPage({
           </div>
         </div>
 
-        {/* Dynamic Table of Contents (ToC) */}
-        <div className="bg-emerald-950/40 border border-emerald-950/50 rounded-xl p-5 mb-8">
-          <h3 className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-3">Table of Contents</h3>
-          <ul className="text-xs text-emerald-100/70 space-y-2">
-            <li>• Introduction & Unification Theory Overview</li>
-            <li>• The Physics Achievements & World Accolades</li>
-            <li>• International Foundations & Continuing Legacies</li>
-          </ul>
-        </div>
-
-        {/* Article Body */}
         <div 
           className="prose prose-invert max-w-none text-emerald-100/80 leading-relaxed text-base space-y-6"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
-        {/* Cross linkages: Connected Profiles */}
         {(article.relatedPersonalities?.length > 0 || article.relatedBusinesses?.length > 0) && (
           <div className="border-t border-emerald-500/10 pt-8 mt-12 space-y-6">
             <h3 className="text-lg font-bold text-emerald-300">Connected Directory Profiles</h3>
@@ -113,7 +108,7 @@ export default function BlogDetailPage({
               <div>
                 <span className="text-xs text-emerald-100/50 block mb-2">Personalities:</span>
                 <div className="flex flex-wrap gap-3">
-                  {article.relatedPersonalities.map((p, idx) => (
+                  {article.relatedPersonalities.map((p: any, idx: number) => (
                     <Link
                       key={idx}
                       href={`/personalities/${p.slug}`}
@@ -131,7 +126,7 @@ export default function BlogDetailPage({
               <div>
                 <span className="text-xs text-emerald-100/50 block mb-2">Businesses:</span>
                 <div className="flex flex-wrap gap-3">
-                  {article.relatedBusinesses.map((b, idx) => (
+                  {article.relatedBusinesses.map((b: any, idx: number) => (
                     <Link
                       key={idx}
                       href={`/businesses/${b.slug}`}

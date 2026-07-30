@@ -85,9 +85,30 @@ export default function Navbar() {
 
           {/* Action Icons */}
           <div className="flex items-center gap-4">
-            <button className="p-2 text-emerald-100/80 hover:text-amber-400 transition-colors">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.target as HTMLFormElement;
+                const q = (form.elements.namedItem('q') as HTMLInputElement).value;
+                if (q.trim()) {
+                  window.location.href = `/search?q=${encodeURIComponent(q.trim())}`;
+                }
+              }}
+              className="relative hidden sm:block"
+            >
+              <input
+                type="text"
+                name="q"
+                placeholder="Search..."
+                className="w-32 lg:w-48 bg-emerald-950/40 border border-emerald-500/20 rounded-full py-1.5 pl-9 pr-3 text-sm text-white placeholder-emerald-100/40 focus:outline-none focus:border-amber-400 focus:w-48 lg:focus:w-64 transition-all duration-300"
+              />
+              <Search className="absolute left-3 top-2 h-4 w-4 text-emerald-100/60" />
+            </form>
+
+            {/* Mobile Search Icon (Links to search page) */}
+            <Link href="/search" className="sm:hidden p-2 text-emerald-100/80 hover:text-amber-400 transition-colors">
               <Search className="h-5 w-5" />
-            </button>
+            </Link>
             {session?.user ? (
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}

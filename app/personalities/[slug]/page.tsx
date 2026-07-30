@@ -1,46 +1,61 @@
-"use client";
-
-import { useState, useEffect, use } from "react";
-import { Award, Calendar, CheckCircle, ArrowLeft, Loader2, Star } from "lucide-react";
+import { Metadata } from "next";
+import { Award, Calendar, CheckCircle, ArrowLeft, Star } from "lucide-react";
 import Link from "next/link";
+import dbConnect from "@/lib/db";
+import PersonalityModel from "@/models/Personality";
 
-interface Personality {
-  name: string;
-  category: string;
-  biography: string;
-  achievements: string[];
-  birthDate?: string;
-  deathDate?: string;
-  featured: boolean;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    await dbConnect();
+    const profile = await PersonalityModel.findOne({ slug });
+    
+    if (!profile) {
+      return { title: "Profile Not Found | Proud of Pakistan" };
+    }
+
+    return {
+      title: `${profile.name} - ${profile.category} | Proud of Pakistan`,
+      description: profile.biography.substring(0, 160) + (profile.biography.length > 160 ? "..." : ""),
+      openGraph: {
+        title: `${profile.name} - ${profile.category}`,
+        description: profile.biography.substring(0, 160) + (profile.biography.length > 160 ? "..." : ""),
+        url: `https://www.proudofpakistan.com/personalities/${slug}`,
+        siteName: "Proud of Pakistan",
+        images: [
+          {
+            url: profile.image || "https://www.proudofpakistan.com/logo.jpg",
+            width: 1200,
+            height: 630,
+            alt: profile.name,
+          },
+        ],
+        type: "profile",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${profile.name} - ${profile.category}`,
+        description: profile.biography.substring(0, 160) + (profile.biography.length > 160 ? "..." : ""),
+        images: [profile.image || "https://www.proudofpakistan.com/logo.jpg"],
+      },
+    };
+  } catch (error) {
+    return { title: "Personality | Proud of Pakistan" };
+  }
 }
 
-export default function PersonalityDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = use(params);
-  const [profile, setProfile] = useState<Personality | null>(null);
-  const [loading, setLoading] = useState(true);
+export default async function PersonalityDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  let profile = null;
 
-  useEffect(() => {
-    fetch(`/api/personalities/${slug}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.error) {
-          setProfile(data);
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-10 w-10 text-amber-400 animate-spin" />
-      </div>
-    );
+  try {
+    await dbConnect();
+    const data = await PersonalityModel.findOne({ slug });
+    if (data) {
+      profile = JSON.parse(JSON.stringify(data));
+    }
+  } catch (error) {
+    console.error(error);
   }
 
   if (!profile) {
@@ -85,17 +100,19 @@ export default function PersonalityDetailPage({
           <p className="text-emerald-100/80 leading-relaxed text-base mb-8 whitespace-pre-line">{profile.biography}</p>
         </div>
 
-        <div className="border-t border-emerald-500/10 pt-8">
-          <h2 className="text-xl font-bold mb-4 text-emerald-300">Major Achievements</h2>
-          <div className="space-y-3">
-            {profile.achievements?.map((ach, idx) => (
-              <div key={idx} className="flex gap-3 items-start bg-emerald-950/40 p-4 rounded-xl border border-emerald-950/50">
-                <CheckCircle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                <span className="text-emerald-100/90 text-sm leading-relaxed">{ach}</span>
-              </div>
-            ))}
+        {profile.achievements && profile.achievements.length > 0 && (
+          <div className="border-t border-emerald-500/10 pt-8">
+            <h2 className="text-xl font-bold mb-4 text-emerald-300">Major Achievements</h2>
+            <div className="space-y-3">
+              {profile.achievements.map((ach: string, idx: number) => (
+                <div key={idx} className="flex gap-3 items-start bg-emerald-950/40 p-4 rounded-xl border border-emerald-950/50">
+                  <CheckCircle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-emerald-100/90 text-sm leading-relaxed">{ach}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

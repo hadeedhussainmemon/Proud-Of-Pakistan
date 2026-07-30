@@ -26,10 +26,23 @@ interface SiteConfig {
   heroImageUrl?: string;
 }
 
+interface EventData {
+  title: string;
+  date: string;
+  status: string;
+}
+
+interface GalleryItem {
+  title: string;
+  imageUrl: string;
+}
+
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [personalities, setPersonalities] = useState<Personality[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
+  const [events, setEvents] = useState<EventData[]>([]);
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [config, setConfig] = useState<SiteConfig>({
     headline: "Proud of Pakistan – A Symbol of National Honor, Excellence, and Inspiration",
     subheadline: "Honoring exceptional citizens whose achievements, character, and service represent the strength and future of our nation.",
@@ -64,12 +77,16 @@ export default function Home() {
     Promise.all([
       safeFetch("/api/personalities"),
       safeFetch("/api/articles"),
-      safeFetch("/api/config")
+      safeFetch("/api/config"),
+      safeFetch("/api/events"),
+      safeFetch("/api/gallery")
     ])
-      .then(([persData, artData, configData]) => {
+      .then(([persData, artData, configData, evtData, galData]) => {
         if (Array.isArray(persData)) setPersonalities(persData);
         if (Array.isArray(artData)) setArticles(artData);
         if (configData && configData.headline) setConfig(configData);
+        if (Array.isArray(evtData)) setEvents(evtData);
+        if (Array.isArray(galData)) setGallery(galData);
         setLoading(false);
       })
       .catch((err) => {
@@ -77,6 +94,9 @@ export default function Home() {
         setLoading(false);
       });
   }, []);
+
+  const upcomingEvents = events.filter(e => e.status === "upcoming").slice(0, 3);
+  const pastEvents = events.filter(e => e.status === "past").slice(0, 3);
 
   return (
     <div className="flex flex-col w-full min-h-screen text-neutral-100 bg-[#020805] font-sans selection:bg-amber-400 selection:text-[#020805]">
@@ -123,15 +143,6 @@ export default function Home() {
         {/* Right Column: Dynamic Lists (News & Profiles) */}
         <div className="lg:col-span-5 space-y-16">
           
-          {/* Search bar */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search directory..."
-              className="w-full bg-neutral-900/20 border border-emerald-950/60 rounded-lg py-3 px-4 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-500 transition-colors"
-            />
-          </div>
-
           {/* Profile Features List */}
           <div className="space-y-6">
             <h3 className="text-xs font-bold tracking-widest text-emerald-500 uppercase border-b border-emerald-950/40 pb-2">
@@ -197,19 +208,26 @@ export default function Home() {
 
       {/* 3. Visual Gallery (Minimalist Grid Layout) */}
       <section className="max-w-6xl mx-auto px-6 py-20 border-t border-emerald-950/40 w-full">
-        <h2 className="text-xs font-bold tracking-widest text-emerald-500 uppercase mb-8">
-          Visual Gallery
-        </h2>
+        <div className="flex justify-between items-end mb-8">
+          <h2 className="text-xs font-bold tracking-widest text-emerald-500 uppercase">
+            Visual Gallery
+          </h2>
+          <Link href="/gallery" className="text-xs font-bold text-amber-400 hover:underline">View All &rarr;</Link>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            "Badshahi Mosque, Lahore",
-            "Passu Cones Peak, Hunza",
-            "Lake Saif-ul-Mulook, Kaghan",
-            "Kund Malir Coastline, Balochistan"
-          ].map((title, idx) => (
-            <div key={idx} className="group aspect-[3/4] bg-neutral-900/10 border border-emerald-950/40 p-4 rounded-xl flex flex-col justify-end transition-all hover:bg-neutral-900/20">
-              <span className="text-[10px] text-amber-500 font-bold block mb-1">0{idx + 1}</span>
-              <h3 className="text-sm font-bold text-white tracking-tight leading-snug">{title}</h3>
+          {loading ? (
+            <div className="col-span-4 py-10 flex justify-center">
+              <Loader2 className="h-8 w-8 text-amber-400 animate-spin" />
+            </div>
+          ) : gallery.length === 0 ? (
+             <div className="col-span-4 text-center py-10 text-neutral-500 text-sm">No images uploaded yet.</div>
+          ) : gallery.slice(0, 4).map((item, idx) => (
+            <div key={idx} className="group aspect-[3/4] relative overflow-hidden rounded-xl border border-emerald-950/40">
+              <img src={item.imageUrl} alt={item.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 opacity-80 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-amber-500 font-bold block mb-1">0{idx + 1}</span>
+                <h3 className="text-sm font-bold text-white tracking-tight leading-snug">{item.title}</h3>
+              </div>
             </div>
           ))}
         </div>
@@ -218,29 +236,36 @@ export default function Home() {
       {/* 4. Events timeline (Clean lists) */}
       <section className="max-w-6xl mx-auto px-6 py-20 border-t border-emerald-950/40 w-full grid grid-cols-1 md:grid-cols-2 gap-12">
         <div className="space-y-6">
-          <h3 className="text-xs font-bold tracking-widest text-amber-500 uppercase">Upcoming Events</h3>
+          <div className="flex justify-between items-center border-b border-emerald-950/40 pb-2">
+            <h3 className="text-xs font-bold tracking-widest text-amber-500 uppercase">Upcoming Events</h3>
+            <Link href="/events" className="text-[10px] font-bold text-emerald-300 hover:underline">VIEW ALL</Link>
+          </div>
           <div className="space-y-4">
-            {[
-              { date: "AUG 14", title: "79th Independence Day Award Ceremony" },
-              { date: "OCT 10", title: "Annual Young Achievers Roundtable" }
-            ].map((e, idx) => (
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+            ) : upcomingEvents.length === 0 ? (
+              <p className="text-neutral-500 text-sm">No upcoming events.</p>
+            ) : upcomingEvents.map((e, idx) => (
               <div key={idx} className="flex gap-4 items-center py-2 border-b border-emerald-950/20">
-                <span className="font-mono text-sm text-neutral-400">{e.date}</span>
-                <span className="font-semibold text-white text-sm">{e.title}</span>
+                <span className="font-mono text-sm text-neutral-400 uppercase w-24 flex-shrink-0">{new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                <span className="font-semibold text-white text-sm leading-snug hover:text-amber-400 transition-colors cursor-pointer"><Link href="/events">{e.title}</Link></span>
               </div>
             ))}
           </div>
         </div>
         <div className="space-y-6">
-          <h3 className="text-xs font-bold tracking-widest text-emerald-500 uppercase">Past Events</h3>
+          <div className="flex justify-between items-center border-b border-emerald-950/40 pb-2">
+            <h3 className="text-xs font-bold tracking-widest text-emerald-500 uppercase">Past Events</h3>
+          </div>
           <div className="space-y-4">
-            {[
-              { date: "MAR 23", title: "Pakistan Day Commemoration & Heritage Exhibition" },
-              { date: "JAN 05", title: "Winter Sports Awards & Mountaineering Honors" }
-            ].map((e, idx) => (
-              <div key={idx} className="flex gap-4 items-center py-2 border-b border-emerald-950/20 opacity-60">
-                <span className="font-mono text-sm text-neutral-400">{e.date}</span>
-                <span className="font-semibold text-white text-sm">{e.title}</span>
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+            ) : pastEvents.length === 0 ? (
+              <p className="text-neutral-500 text-sm">No past events.</p>
+            ) : pastEvents.map((e, idx) => (
+              <div key={idx} className="flex gap-4 items-center py-2 border-b border-emerald-950/20 opacity-60 hover:opacity-100 transition-opacity">
+                <span className="font-mono text-sm text-neutral-400 uppercase w-24 flex-shrink-0">{new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                <span className="font-semibold text-white text-sm leading-snug hover:text-amber-400 transition-colors cursor-pointer"><Link href="/events">{e.title}</Link></span>
               </div>
             ))}
           </div>

@@ -30,6 +30,7 @@ export default function PersonalitiesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetch("/api/personalities")
@@ -41,6 +42,10 @@ export default function PersonalitiesPage() {
       .catch((err) => { console.error(err); setLoading(false); });
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, activeFilter]);
+
   const categories = ["All", ...Array.from(new Set(personalities.map((p) => p.category)))];
 
   const filteredList = personalities.filter((p) => {
@@ -48,6 +53,10 @@ export default function PersonalitiesPage() {
     const matchesFilter = activeFilter === "All" || p.category.toLowerCase() === activeFilter.toLowerCase();
     return matchesSearch && matchesFilter;
   });
+
+  const itemsPerPage = 12;
+  const totalPages = Math.ceil(filteredList.length / itemsPerPage);
+  const paginatedList = filteredList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleShare = async (slug: string) => {
     const url = `${window.location.origin}/personalities/${slug}`;
@@ -116,12 +125,12 @@ export default function PersonalitiesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredList.length === 0 ? (
+          {paginatedList.length === 0 ? (
             <div className="col-span-full text-center text-neutral-500 text-sm py-12">
               No profiles found matching search criteria.
             </div>
           ) : (
-            filteredList.map((p, idx) => (
+            paginatedList.map((p, idx) => (
               <div
                 key={idx}
                 className="bg-[#0a120e] rounded-3xl overflow-hidden border border-emerald-900/40 hover:border-amber-400/50 transition-all duration-300 flex flex-col group"
@@ -173,6 +182,29 @@ export default function PersonalitiesPage() {
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-12 pt-6 border-t border-emerald-900/30">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-emerald-950 border border-emerald-500/20 text-xs font-semibold text-emerald-100 rounded-lg disabled:opacity-40 hover:bg-emerald-900 transition-all cursor-pointer"
+          >
+            Previous
+          </button>
+          <span className="text-xs text-emerald-100/60 font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-emerald-950 border border-emerald-500/20 text-xs font-semibold text-emerald-100 rounded-lg disabled:opacity-40 hover:bg-emerald-900 transition-all cursor-pointer"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

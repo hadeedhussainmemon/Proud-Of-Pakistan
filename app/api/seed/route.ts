@@ -5,6 +5,8 @@ import Personality from "@/models/Personality";
 import Business from "@/models/Business";
 import Article from "@/models/Article";
 import SiteConfig from "@/models/SiteConfig";
+import Event from "@/models/Event";
+import Gallery from "@/models/Gallery";
 
 export async function GET() {
   try {
@@ -16,6 +18,8 @@ export async function GET() {
     await Business.deleteMany({});
     await Article.deleteMany({});
     await SiteConfig.deleteMany({});
+    await Event.deleteMany({});
+    await Gallery.deleteMany({});
 
     // 2. Seed Users
     const adminUser = await User.create({
@@ -327,12 +331,46 @@ export async function GET() {
       }
     ]);
 
+    // 6. Seed Events
+    const events = await Event.create([
+      {
+        title: "Independence Day Celebration",
+        date: new Date("2026-08-14"),
+        description: "National flag hoisting ceremony and cultural performances celebrating Pakistan's independence.",
+        location: "Karachi, Pakistan",
+        status: "upcoming"
+      },
+      {
+        title: "Pakistan Tech Summit 2026",
+        date: new Date("2026-11-20"),
+        description: "The largest tech conference bringing together national innovators.",
+        location: "Lahore, Pakistan",
+        status: "upcoming"
+      }
+    ]);
+
+    // 7. Seed Gallery
+    const gallery = await Gallery.create([
+      {
+        title: "Faisal Mosque",
+        category: "Heritage",
+        imageUrl: "https://images.unsplash.com/photo-1627915998240-621379b30c5e?w=800"
+      },
+      {
+        title: "K2 Peak",
+        category: "Nature",
+        imageUrl: "https://images.unsplash.com/photo-1599573030508-30113c2f0f81?w=800"
+      }
+    ]);
+
     return NextResponse.json({
       success: true,
-      message: "Database seeded successfully with Top 10 Personalities of Pakistan!",
+      message: "Database seeded successfully with All Metrics!",
       usersCreated: 2,
       personalitiesCreated: 10,
       articlesCreated: 2,
+      eventsCreated: events.length,
+      galleryCreated: gallery.length,
       configSeeded: true
     });
   } catch (error: any) {

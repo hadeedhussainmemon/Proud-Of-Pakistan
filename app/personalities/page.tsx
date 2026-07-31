@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Loader2, Globe, Mail, Share2, PlusCircle, User } from "lucide-react";

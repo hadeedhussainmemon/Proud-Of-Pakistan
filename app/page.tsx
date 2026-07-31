@@ -95,8 +95,9 @@ export default function Home() {
       });
   }, []);
 
-  const upcomingEvents = events.filter(e => e.status === "upcoming").slice(0, 3);
-  const pastEvents = events.filter(e => e.status === "past").slice(0, 3);
+  const today = new Date().setHours(0, 0, 0, 0);
+  const upcomingEvents = events.filter(e => e.status === "upcoming" && new Date(e.date).getTime() >= today).slice(0, 3);
+  const pastEvents = events.filter(e => e.status === "past" || new Date(e.date).getTime() < today).slice(0, 3);
 
   return (
     <div className="flex flex-col w-full min-h-screen text-neutral-100 bg-[#020805] font-sans selection:bg-amber-400 selection:text-[#020805]">

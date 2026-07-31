@@ -26,8 +26,9 @@ export default function EventsPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const upcomingEvents = events.filter(e => e.status === "upcoming");
-  const pastEvents = events.filter(e => e.status === "past");
+  const today = new Date().setHours(0, 0, 0, 0);
+  const upcomingEvents = events.filter(e => e.status === "upcoming" && new Date(e.date).getTime() >= today);
+  const pastEvents = events.filter(e => e.status === "past" || new Date(e.date).getTime() < today);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">

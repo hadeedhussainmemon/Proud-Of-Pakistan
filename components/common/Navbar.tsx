@@ -16,8 +16,7 @@ export default function Navbar() {
   const navigation = [
     { name: "News", href: "/blog" },
     { name: "Gallery", href: "/gallery" },
-    { name: "Upcoming Events", href: "/events" },
-    { name: "Past Events", href: "/events" },
+    { name: "Events", href: "/events" },
     { name: "Profile Features", href: "/personalities" },
     { name: "About", href: "/about" },
     ...(session?.user && (session.user as any).role === "Admin"

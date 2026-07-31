@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Footer() {
+  const pathname = usePathname();
   const [logoUrl, setLogoUrl] = useState("/logo.jpg");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<string | null>(null);
+
+  if (pathname?.startsWith("/admin")) return null;
 
   const links = [
     { name: "News", href: "/blog" },

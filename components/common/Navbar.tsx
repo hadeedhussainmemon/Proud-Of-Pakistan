@@ -2,16 +2,20 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Search, Menu, X, User, Globe, LogIn } from "lucide-react";
 import { animate } from "animejs";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const { data: session } = useSession();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState("/logo.jpg");
   const menuRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
+
+  if (pathname?.startsWith("/admin")) return null;
 
   const navigation = [
     { name: "News", href: "/blog" },

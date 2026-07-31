@@ -84,7 +84,7 @@ export default function Home() {
       .then(([persData, artData, configData, evtData, galData]) => {
         if (Array.isArray(persData)) setPersonalities(persData);
         if (Array.isArray(artData)) setArticles(artData);
-        if (configData && configData.headline) setConfig(configData);
+        if (configData && configData.headline) setConfig((prev: any) => ({ ...prev, ...configData }));
         if (Array.isArray(evtData)) setEvents(evtData);
         if (Array.isArray(galData)) setGallery(galData);
         setLoading(false);

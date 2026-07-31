@@ -18,14 +18,21 @@ export async function GET(req: Request) {
     // Run all searches in parallel
     const [articles, events, personalities] = await Promise.all([
       ArticleModel.find({
-        $text: { $search: q },
+        $or: [
+          { title: { $regex: q, $options: "i" } },
+          { content: { $regex: q, $options: "i" } },
+          { category: { $regex: q, $options: "i" } }
+        ]
       })
         .select("title category slug")
         .limit(10)
         .lean(),
 
       EventModel.find({
-        $text: { $search: q },
+        $or: [
+          { title: { $regex: q, $options: "i" } },
+          { description: { $regex: q, $options: "i" } }
+        ]
       })
         .select("title date status")
         .limit(10)
@@ -33,7 +40,11 @@ export async function GET(req: Request) {
 
       PersonalityModel.find({
         status: "approved",
-        $text: { $search: q },
+        $or: [
+          { name: { $regex: q, $options: "i" } },
+          { biography: { $regex: q, $options: "i" } },
+          { category: { $regex: q, $options: "i" } }
+        ]
       })
         .select("name category slug profilePicture images")
         .limit(10)

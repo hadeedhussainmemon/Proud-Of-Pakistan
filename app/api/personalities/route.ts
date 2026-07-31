@@ -13,9 +13,11 @@ export async function GET(req: Request) {
     // By default only show approved. Or if status is missing (old records)
     const query = fetchAll ? {} : { $or: [{ status: 'approved' }, { status: { $exists: false } }] };
     
+    const cacheHeaders = { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30" };
+
     if (!hasPagination) {
       const personalities = await Personality.find(query).sort({ createdAt: -1 });
-      return NextResponse.json(personalities);
+      return NextResponse.json(personalities, { headers: cacheHeaders });
     }
 
     const page = parseInt(url.searchParams.get("page") || "1", 10);
@@ -30,7 +32,7 @@ export async function GET(req: Request) {
       total,
       page,
       totalPages: Math.ceil(total / limit)
-    });
+    }, { headers: cacheHeaders });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

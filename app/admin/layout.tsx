@@ -2,22 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, UserCheck, Briefcase, Tags, Image as ImageIcon, MessageSquare, Users2, Settings, Sparkles, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, UserCheck, Calendar, Image as ImageIcon, Mail, LogOut } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const adminNavigation = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Articles", href: "/admin/articles", icon: FileText },
-    { name: "Personalities", href: "/admin/personalities", icon: UserCheck },
-    { name: "Businesses", href: "/admin/businesses", icon: Briefcase },
-    { name: "Taxonomy", href: "/admin/taxonomy", icon: Tags },
-    { name: "Media", href: "/admin/media", icon: ImageIcon },
-    { name: "Comments", href: "/admin/comments", icon: MessageSquare },
-    { name: "Community", href: "/admin/community", icon: Users2 },
-    { name: "AI Tools", href: "/admin/ai-tools", icon: Sparkles },
-    { name: "Settings", href: "/admin/settings", icon: Settings },
+    { name: "Profiles", href: "/admin?tab=personalities", icon: UserCheck },
+    { name: "Articles", href: "/admin?tab=articles", icon: FileText },
+    { name: "Events", href: "/admin?tab=events", icon: Calendar },
+    { name: "Gallery", href: "/admin?tab=gallery", icon: ImageIcon },
+    { name: "Subscribers", href: "/admin?tab=subscribers", icon: Mail },
   ];
 
   return (

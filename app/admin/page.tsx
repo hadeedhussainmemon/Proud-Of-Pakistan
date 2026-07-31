@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   BarChart3, User, Calendar, FileText, PlusCircle, CheckCircle,
   Sparkles, Loader2, Settings, Lock, Trash2, Edit3, Upload, Mail,
-  Image as ImageIcon, Globe, ShieldAlert, Heart
+  Image as ImageIcon, Globe, ShieldAlert, Heart, Clock
 } from "lucide-react";
 function CMSContent() {
   const searchParams = useSearchParams();
@@ -279,10 +279,11 @@ function CMSContent() {
           {/* 1. TAB: DASHBOARD (METRICS & CONFIG) */}
           {activeTab === "dashboard" && (
             <div className="space-y-8 animate-fadeIn">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {[
                   { label: "Articles", val: articles.length, icon: FileText, color: "text-blue-400" },
-                  { label: "Profiles", val: personalities.length, icon: User, color: "text-amber-400" },
+                  { label: "Profiles (Approved)", val: personalities.filter(p => p.status !== 'pending').length, icon: User, color: "text-emerald-400" },
+                  { label: "Pending Nominees", val: personalities.filter(p => p.status === 'pending').length, icon: Clock, color: "text-amber-400" },
                   { label: "Events", val: events.length, icon: Calendar, color: "text-teal-400" },
                   { label: "Gallery", val: gallery.length, icon: ImageIcon, color: "text-purple-400" },
                   { label: "Subscribers", val: subscribers.length, icon: Mail, color: "text-rose-400" },
@@ -379,25 +380,16 @@ function CMSContent() {
               <div className="md:col-span-2 space-y-4">
                 <h2 className="text-sm font-bold text-white border-b border-emerald-500/10 pb-2 uppercase tracking-wide">Profiles Directory</h2>
                 <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-                  {personalities.map((p) => (
-                    <div key={p.slug} className={`flex items-center justify-between p-3 rounded-xl border ${p.status === 'pending' ? 'bg-amber-500/10 border-amber-500/20' : 'bg-emerald-950/20 border-emerald-500/10'}`}>
+                  {personalities.filter((p) => p.status !== 'pending').map((p) => (
+                    <div key={p.slug} className="flex items-center justify-between p-3 rounded-xl border bg-emerald-950/20 border-emerald-500/10">
                       <div className="flex items-center gap-3">
                         <img src={p.profilePicture || p.images?.[0] || "/logo.jpg"} alt={p.name} className="w-10 h-10 rounded-full object-cover border border-emerald-500/20" />
                         <div>
                           <h4 className="font-bold text-white text-sm">{p.name}</h4>
-                          <span className="text-[10px] text-neutral-400 uppercase tracking-wider">{p.category} • {p.status === 'pending' ? 'Pending Approval' : 'Approved'}</span>
+                          <span className="text-[10px] text-neutral-400 uppercase tracking-wider">{p.category} • Approved</span>
                         </div>
                       </div>
                       <div className="flex gap-1.5">
-                        {p.status === 'pending' && (
-                          <button onClick={() => {
-                            fetch(`/api/personalities/${p.slug}`, {
-                              method: "PUT",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ status: "approved" }),
-                            }).then(fetchData);
-                          }} className="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold text-[10px] rounded uppercase">Approve</button>
-                        )}
                         <button onClick={() => startEditPersonality(p)} className="p-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 rounded text-emerald-400"><Edit3 className="h-3.5 w-3.5" /></button>
                         <button onClick={async () => {
                           if (confirm("Delete profile?")) {
@@ -432,6 +424,73 @@ function CMSContent() {
               </div>
             </div>
           )}
+
+          {/* TAB: PENDING NOMINEES */}
+          {activeTab === "pending" && (
+            <div className="space-y-6 animate-fadeIn max-w-4xl">
+              <div className="flex items-center justify-between border-b border-emerald-500/10 pb-4">
+                <div>
+                  <h2 className="text-xl font-display font-extrabold text-white">Pending Nomination Submissions</h2>
+                  <p className="text-xs text-emerald-100/50 mt-1">Review nominated profiles, contact details for payment verification, and publish profiles.</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {personalities.filter(p => p.status === 'pending').length === 0 ? (
+                  <div className="p-12 text-center rounded-2xl bg-emerald-950/5 border border-emerald-500/10 text-neutral-500 text-sm">
+                    No pending profile nominations to review.
+                  </div>
+                ) : (
+                  personalities.filter(p => p.status === 'pending').map((p) => (
+                    <div key={p.slug} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/15 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                      <div className="flex items-start gap-4 flex-grow">
+                        <img src={p.profilePicture || p.images?.[0] || "/logo.jpg"} alt={p.name} className="w-16 h-16 rounded-xl object-cover border border-emerald-500/20 shrink-0" />
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-white text-base leading-snug">{p.name}</h3>
+                            <span className="text-[9px] font-bold bg-amber-400/20 text-amber-400 px-2 py-0.5 rounded-full uppercase tracking-wider">{p.category}</span>
+                          </div>
+                          <p className="text-xs text-emerald-100/60 line-clamp-2">{p.biography}</p>
+                          {p.socialLinks?.contact && (
+                            <div className="flex items-center gap-1.5 text-xs text-amber-400 font-bold bg-amber-400/5 border border-amber-400/10 px-2.5 py-1 rounded-lg w-fit mt-2">
+                              <Mail className="h-3.5 w-3.5" />
+                              <span>Contact Info: {p.socialLinks.contact}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2.5 w-full md:w-auto justify-end border-t md:border-t-0 border-emerald-500/5 pt-4 md:pt-0 shrink-0">
+                        <button
+                          onClick={() => {
+                            fetch(`/api/personalities/${p.slug}`, {
+                              method: "PUT",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ status: "approved" }),
+                            }).then(fetchData);
+                          }}
+                          className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold text-xs rounded-xl uppercase tracking-wider flex items-center gap-1"
+                        >
+                          <CheckCircle className="h-4 w-4" /> Approve
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (confirm("Delete this nomination submission?")) {
+                              await fetch(`/api/personalities/${p.slug}`, { method: "DELETE" });
+                              fetchData();
+                            }
+                          }}
+                          className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-semibold text-xs rounded-xl uppercase tracking-wider flex items-center gap-1"
+                        >
+                          <Trash2 className="h-4 w-4" /> Decline
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
           {/* 3. TAB: ARTICLES */}
           {activeTab === "articles" && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-fadeIn">

@@ -1,19 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { LayoutDashboard, FileText, UserCheck, Calendar, Image as ImageIcon, Mail, LogOut, Menu, X, Globe } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
+import { LayoutDashboard, FileText, UserCheck, Calendar, Image as ImageIcon, Mail, LogOut, Menu, X, Globe, Clock } from "lucide-react";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") || "";
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+interface NavItem {
+  name: string;
+  href: string;
+  tab: string;
+}
 
-  const adminNavigation = [
+function AdminNavList({ activeTab, onItemClick }: { activeTab: string; onItemClick?: () => void }) {
+  const adminNavigation: NavItem[] = [
     { name: "Dashboard", href: "/admin", tab: "" },
     { name: "Profiles", href: "/admin?tab=personalities", tab: "personalities" },
+    { name: "Pending", href: "/admin?tab=pending", tab: "pending" },
     { name: "Articles", href: "/admin?tab=articles", tab: "articles" },
     { name: "Events", href: "/admin?tab=events", tab: "events" },
     { name: "Gallery", href: "/admin?tab=gallery", tab: "gallery" },
@@ -24,6 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     switch (name) {
       case "Dashboard": return LayoutDashboard;
       case "Profiles": return UserCheck;
+      case "Pending": return Clock;
       case "Articles": return FileText;
       case "Events": return Calendar;
       case "Gallery": return ImageIcon;
@@ -31,6 +34,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       default: return LayoutDashboard;
     }
   };
+
+  return (
+    <div className="flex flex-col gap-1.5 w-full">
+      {adminNavigation.map((item) => {
+        const isActive = (item.tab === "" && activeTab === "") || (item.tab !== "" && activeTab === item.tab);
+        const Icon = getIcon(item.name);
+        return (
+          <Link
+            key={item.name}
+            href={item.href}
+            onClick={onItemClick}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+              isActive
+                ? "bg-amber-400 text-emerald-950 shadow-md"
+                : "text-emerald-100/70 hover:text-white hover:bg-emerald-950/30"
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+            <span>{item.name}</span>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+function AdminSidebarLinks({ onItemClick }: { onItemClick?: () => void }) {
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") || "";
+  return <AdminNavList activeTab={activeTab} onItemClick={onItemClick} />;
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-emerald-990 flex flex-col md:flex-row text-neutral-100">
@@ -68,25 +105,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             
             <div className="flex-grow flex flex-col gap-1.5">
-              {adminNavigation.map((item) => {
-                const isActive = (item.tab === "" && activeTab === "") || (item.tab !== "" && activeTab === item.tab);
-                const Icon = getIcon(item.name);
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
-                      isActive
-                        ? "bg-amber-400 text-emerald-950"
-                        : "text-emerald-100/70 hover:text-white hover:bg-emerald-950/40 border border-transparent"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
+              <Suspense fallback={<div className="h-40 animate-pulse bg-emerald-950/20 rounded-xl" />}>
+                <AdminSidebarLinks onItemClick={() => setIsMobileMenuOpen(false)} />
+              </Suspense>
             </div>
 
             <div className="pt-4 border-t border-emerald-500/10 flex flex-col gap-2.5">
@@ -113,24 +134,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <nav className="flex-grow flex flex-col gap-1.5">
-          {adminNavigation.map((item) => {
-            const isActive = (item.tab === "" && activeTab === "") || (item.tab !== "" && activeTab === item.tab);
-            const Icon = getIcon(item.name);
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
-                  isActive
-                    ? "bg-amber-400 text-emerald-950 shadow-md"
-                    : "text-emerald-100/70 hover:text-white hover:bg-emerald-950/30"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
+          <Suspense fallback={<div className="h-40 animate-pulse bg-emerald-950/20 rounded-xl" />}>
+            <AdminSidebarLinks />
+          </Suspense>
         </nav>
 
         <div className="pt-6 border-t border-emerald-500/10 flex flex-col gap-2">

@@ -19,6 +19,7 @@ interface Personality {
   category: string;
   biography: string;
   profilePicture?: string;
+  images?: string[];
   socialLinks?: SocialLinks;
   website?: string;
   slug: string;
@@ -127,8 +128,8 @@ export default function PersonalitiesPage() {
               >
                 {/* Top Image Section */}
                 <div className="h-64 w-full bg-emerald-950/40 relative overflow-hidden flex items-center justify-center">
-                  {p.profilePicture ? (
-                    <img src={p.profilePicture} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  {p.profilePicture || p.images?.[0] ? (
+                    <img src={p.profilePicture || p.images?.[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <User className="h-20 w-20 text-emerald-900/50" />
                   )}

@@ -4,7 +4,8 @@ import { authConfig } from "./auth.config";
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+// Named export for the new proxy convention
+export const proxy = auth((req) => {
   const isLoggedIn = !!req.auth;
   const { nextUrl } = req;
 
@@ -27,6 +28,9 @@ export default auth((req) => {
 
   return NextResponse.next();
 });
+
+// Default export compatibility
+export default proxy;
 
 export const config = {
   matcher: ["/admin/:path*", "/profile/:path*", "/personalities/submit/:path*"],

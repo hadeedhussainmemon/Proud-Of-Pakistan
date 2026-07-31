@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Article from "@/models/Article";
+import "@/models/User";
+import "@/models/Personality";
+import "@/models/Business";
 
 export async function GET(
   req: Request,

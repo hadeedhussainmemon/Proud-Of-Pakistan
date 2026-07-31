@@ -12,6 +12,7 @@ interface Article {
   readTime: string;
   publishedAt: string;
   authorId?: { name: string };
+  heroImage?: string;
 }
 
 export default function BlogPage() {
@@ -102,29 +103,38 @@ export default function BlogPage() {
             filtered.map((art, idx) => (
               <div
                 key={idx}
-                className="p-8 rounded-3xl bg-emerald-950/10 border border-emerald-500/10 hover:border-emerald-500/20 transition-all flex flex-col justify-between"
+                className="rounded-3xl bg-[#0a120e] border border-emerald-900/40 hover:border-amber-400/40 transition-all flex flex-col md:flex-row overflow-hidden group"
               >
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">
-                      {art.category}
-                    </span>
-                    <span className="text-xs text-emerald-100/40">{art.readTime} read</span>
+                {art.heroImage && (
+                  <div className="w-full md:w-44 h-48 md:h-auto relative shrink-0 overflow-hidden bg-emerald-950/20 border-b md:border-b-0 md:border-r border-emerald-900/40">
+                    <img src={art.heroImage} alt={art.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
-                  <h2 className="text-xl font-bold text-white mb-2 leading-snug">{art.title}</h2>
-                  <p className="text-emerald-100/60 text-sm mb-6 leading-relaxed line-clamp-2">{art.subtitle}</p>
-                </div>
-                <div className="flex justify-between items-center border-t border-emerald-500/10 pt-4 mt-4">
-                  <div className="flex items-center gap-1 text-xs text-emerald-100/50">
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>{new Date(art.publishedAt).toLocaleDateString()}</span>
+                )}
+                <div className="p-8 flex flex-col justify-between flex-grow">
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs text-amber-400 font-bold uppercase tracking-wider">
+                        {art.category}
+                      </span>
+                      <span className="text-xs text-emerald-100/40">{art.readTime} read</span>
+                    </div>
+                    <h2 className="text-xl font-bold text-white mb-2 leading-snug group-hover:text-amber-400 transition-colors">
+                      <Link href={`/blog/${art.slug}`}>{art.title}</Link>
+                    </h2>
+                    <p className="text-emerald-100/60 text-sm mb-6 leading-relaxed line-clamp-2">{art.subtitle}</p>
                   </div>
-                  <Link
-                    href={`/blog/${art.slug}`}
-                    className="text-xs font-semibold text-emerald-300 hover:text-white"
-                  >
-                    Read Article &rarr;
-                  </Link>
+                  <div className="flex justify-between items-center border-t border-emerald-900/25 pt-4">
+                    <div className="flex items-center gap-1 text-xs text-emerald-100/50">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>{new Date(art.publishedAt).toLocaleDateString()}</span>
+                    </div>
+                    <Link
+                      href={`/blog/${art.slug}`}
+                      className="text-xs font-semibold text-emerald-300 hover:text-white"
+                    >
+                      Read Article &rarr;
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))

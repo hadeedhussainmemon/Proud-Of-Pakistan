@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db";
 import ArticleModel from "@/models/Article";
 import "@/models/Personality";
 import "@/models/Business";
+import "@/models/User";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -76,6 +77,14 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
             <BookOpen className="h-4 w-4 text-emerald-400" /> {article.readTime || "5 min"} Read
           </span>
         </div>
+
+        {article.heroImage && (
+          <img 
+            src={article.heroImage} 
+            alt={article.title} 
+            className="w-full h-64 md:h-[400px] rounded-2xl object-cover border border-emerald-500/20 shadow-xl mb-8"
+          />
+        )}
 
         <h1 className="text-3xl md:text-5xl font-display font-extrabold text-white mb-4 leading-tight">
           {article.title}

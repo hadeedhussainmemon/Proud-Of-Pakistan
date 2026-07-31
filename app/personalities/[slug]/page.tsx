@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         siteName: "Proud of Pakistan",
         images: [
           {
-            url: profile.image || "https://www.proudofpakistan.com/logo.jpg",
+            url: profile.profilePicture || profile.images?.[0] || "https://www.proudofpakistan.com/logo.jpg",
             width: 1200,
             height: 630,
             alt: profile.name,
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         card: "summary_large_image",
         title: `${profile.name} - ${profile.category}`,
         description: profile.biography.substring(0, 160) + (profile.biography.length > 160 ? "..." : ""),
-        images: [profile.image || "https://www.proudofpakistan.com/logo.jpg"],
+        images: [profile.profilePicture || profile.images?.[0] || "https://www.proudofpakistan.com/logo.jpg"],
       },
     };
   } catch (error) {
@@ -85,14 +85,24 @@ export default async function PersonalityDetailPage({ params }: { params: Promis
           )}
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-display font-extrabold text-white mb-4">{profile.name}</h1>
-
-        <div className="flex items-center gap-2 text-sm text-emerald-100/50 mb-8">
-          <Calendar className="h-4 w-4" />
-          <span>
-            {profile.birthDate ? new Date(profile.birthDate).getFullYear() : "N/A"} -{" "}
-            {profile.deathDate ? new Date(profile.deathDate).getFullYear() : "Present"}
-          </span>
+        <div className="flex flex-col md:flex-row gap-8 items-start mb-8">
+          {(profile.profilePicture || profile.images?.[0]) && (
+            <img 
+              src={profile.profilePicture || profile.images[0]} 
+              alt={profile.name} 
+              className="w-full md:w-48 h-64 md:h-48 rounded-2xl object-cover border border-emerald-500/20 shadow-xl shrink-0"
+            />
+          )}
+          <div className="flex-grow">
+            <h1 className="text-4xl md:text-5xl font-display font-extrabold text-white mb-4">{profile.name}</h1>
+            <div className="flex items-center gap-2 text-sm text-emerald-100/50">
+              <Calendar className="h-4 w-4" />
+              <span>
+                {profile.birthDate ? new Date(profile.birthDate).getFullYear() : "N/A"} -{" "}
+                {profile.deathDate ? new Date(profile.deathDate).getFullYear() : "Present"}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="border-t border-emerald-500/10 pt-8">

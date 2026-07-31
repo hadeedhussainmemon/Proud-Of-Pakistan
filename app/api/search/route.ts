@@ -35,33 +35,33 @@ export async function GET(req: Request) {
         status: "approved",
         $text: { $search: q },
       })
-        .select("name category slug image")
+        .select("name category slug profilePicture images")
         .limit(10)
         .lean(),
     ]);
 
     // Format results into a unified structure
     const formattedResults = [
-      ...articles.map((a) => ({
+      ...articles.map((a: any) => ({
         _id: a._id,
         title: a.title,
         type: "Article",
         subtitle: a.category,
         url: `/blog/${a.slug}`,
       })),
-      ...events.map((e) => ({
+      ...events.map((e: any) => ({
         _id: e._id,
         title: e.title,
         type: "Event",
         subtitle: new Date(e.date).toLocaleDateString(),
         url: `/events`,
       })),
-      ...personalities.map((p) => ({
+      ...personalities.map((p: any) => ({
         _id: p._id,
         title: p.name,
         type: "Personality",
         subtitle: p.category,
-        image: p.image,
+        image: p.profilePicture || p.images?.[0],
         url: `/personalities/${p.slug}`,
       })),
     ];

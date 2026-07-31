@@ -20,7 +20,7 @@ export default function Navbar() {
     { name: "Profile Features", href: "/personalities" },
     { name: "About", href: "/about" },
     ...(session?.user && (session.user as any).role === "Admin"
-      ? [{ name: "Admin Dashboard", href: "/admin/dashboard" }]
+      ? [{ name: "Admin Dashboard", href: "/admin" }]
       : [])
   ];
 

@@ -63,7 +63,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav ref={menuRef} className="fixed top-0 left-0 right-0 z-50 border-b border-emerald-500/10 bg-emerald-990/80 backdrop-blur-xl">
+    <nav ref={menuRef} className={`fixed top-0 left-0 right-0 border-b border-emerald-500/10 bg-emerald-990/80 backdrop-blur-xl transition-all ${isMobileOpen ? 'z-[9999]' : 'z-50'}`}>
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-20 items-center justify-between">
           
@@ -143,7 +143,7 @@ export default function Navbar() {
 
       {/* Mobile Slide-out Sidebar */}
       {isMobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex justify-end animate-fadeIn">
+        <div className="lg:hidden fixed inset-0 z-[9999] bg-black/75 backdrop-blur-md flex justify-end animate-fadeIn">
           <div className="flex-1" onClick={closeMobileMenu} />
           
           <div 

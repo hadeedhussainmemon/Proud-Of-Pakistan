@@ -22,7 +22,22 @@ function CMSContent() {
   const [persPage, setPersPage] = useState(1);
   const [persTotalPages, setPersTotalPages] = useState(1);
   // Forms States
-  const [persForm, setPersForm] = useState({ name: "", category: "Science", biography: "", achievements: "", images: "", profilePicture: "" });
+  const [persForm, setPersForm] = useState({ 
+    name: "", 
+    category: "Science", 
+    biography: "", 
+    achievements: "", 
+    images: "", 
+    profilePicture: "",
+    birthDate: "",
+    deathDate: "",
+    company: "",
+    website: "",
+    linkedin: "",
+    twitter: "",
+    contact: "",
+    isDeceased: "no"
+  });
   const [artForm, setArtForm] = useState({ title: "", category: "History", subtitle: "", content: "", heroImage: "" });
   const [eventForm, setEventForm] = useState({ title: "", date: "", description: "", location: "", status: "upcoming" });
   const [galleryForm, setGalleryForm] = useState({ title: "", category: "", imageUrl: "" });
@@ -131,7 +146,26 @@ function CMSContent() {
     const achievementsArray = persForm.achievements.split(",").map((s) => s.trim()).filter(Boolean);
     const imagesArray = persForm.images.split(",").map((s) => s.trim()).filter(Boolean);
     const slug = persForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-    const payload = { ...persForm, achievements: achievementsArray, images: imagesArray, slug, featured: true, status: "approved" };
+    const payload = {
+      name: persForm.name,
+      category: persForm.category,
+      biography: persForm.biography,
+      profilePicture: persForm.profilePicture,
+      achievements: achievementsArray,
+      images: imagesArray,
+      slug,
+      featured: true,
+      status: "approved",
+      company: persForm.company || undefined,
+      website: persForm.website || undefined,
+      birthDate: persForm.birthDate ? new Date(persForm.birthDate) : undefined,
+      deathDate: persForm.isDeceased === "yes" && persForm.deathDate ? new Date(persForm.deathDate) : undefined,
+      socialLinks: {
+        linkedin: persForm.linkedin || undefined,
+        twitter: persForm.twitter || undefined,
+        contact: persForm.contact || undefined,
+      }
+    };
     if (editPersSlug) {
       await fetch(`/api/personalities/${editPersSlug}`, {
         method: "PUT",
@@ -148,7 +182,7 @@ function CMSContent() {
       });
       alert("Personality profile created!");
     }
-    setPersForm({ name: "", category: "Science", biography: "", achievements: "", images: "", profilePicture: "" });
+    setPersForm({ name: "", category: "Science", biography: "", achievements: "", images: "", profilePicture: "", birthDate: "", deathDate: "", company: "", website: "", linkedin: "", twitter: "", contact: "", isDeceased: "no" });
     fetchData();
   };
   const handleSaveArticle = async (e: React.FormEvent) => {
@@ -222,6 +256,14 @@ function CMSContent() {
       achievements: Array.isArray(p.achievements) ? p.achievements.join(", ") : "",
       images: Array.isArray(p.images) ? p.images.join(", ") : "",
       profilePicture: p.profilePicture || "",
+      birthDate: p.birthDate ? new Date(p.birthDate).toISOString().split('T')[0] : "",
+      deathDate: p.deathDate ? new Date(p.deathDate).toISOString().split('T')[0] : "",
+      company: p.company || "",
+      website: p.website || "",
+      linkedin: p.socialLinks?.linkedin || "",
+      twitter: p.socialLinks?.twitter || "",
+      contact: p.socialLinks?.contact || "",
+      isDeceased: p.deathDate ? "yes" : "no",
     });
   };
   const startEditArticle = (art: any) => {
@@ -350,7 +392,7 @@ function CMSContent() {
               <form onSubmit={handleSavePersonality} className="p-6 rounded-2xl bg-emerald-950/15 border border-emerald-500/10 flex flex-col gap-4 md:col-span-1 h-fit">
                 <h2 className="text-sm font-bold text-amber-400 flex items-center justify-between border-b border-emerald-500/10 pb-2 uppercase tracking-wide">
                   <span>{editPersSlug ? "Edit Profile" : "Add Profile"}</span>
-                  {editPersSlug && <button type="button" onClick={() => { setEditPersSlug(null); setPersForm({ name: "", category: "Science", biography: "", achievements: "", images: "", profilePicture: "" }); }} className="text-xs text-rose-400">Cancel</button>}
+                  {editPersSlug && <button type="button" onClick={() => { setEditPersSlug(null); setPersForm({ name: "", category: "Science", biography: "", achievements: "", images: "", profilePicture: "", birthDate: "", deathDate: "", company: "", website: "", linkedin: "", twitter: "", contact: "", isDeceased: "no" }); }} className="text-xs text-rose-400">Cancel</button>}
                 </h2>
                 <input type="text" placeholder="Full Name" value={persForm.name} onChange={(e) => setPersForm({ ...persForm, name: e.target.value })} required className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-sm text-white" />
                 <select value={persForm.category} onChange={(e) => setPersForm({ ...persForm, category: e.target.value })} className="w-full bg-emerald-990 border border-emerald-500/20 rounded-lg p-2.5 text-sm text-emerald-300">
@@ -373,6 +415,37 @@ function CMSContent() {
                     </label>
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-neutral-300 block mb-0.5">Birth Date</label>
+                    <input type="date" value={persForm.birthDate} onChange={(e) => setPersForm({ ...persForm, birthDate: e.target.value })} className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2 text-xs text-white" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-neutral-300 block mb-0.5">Life Status</label>
+                    <select value={persForm.isDeceased} onChange={(e) => {
+                      const val = e.target.value;
+                      setPersForm({ 
+                        ...persForm, 
+                        isDeceased: val,
+                        deathDate: val === "no" ? "" : persForm.deathDate 
+                      });
+                    }} className="w-full bg-[#030e07] border border-emerald-500/20 rounded-lg p-2 text-xs text-emerald-300">
+                      <option value="no">Living / Active</option>
+                      <option value="yes">Deceased</option>
+                    </select>
+                  </div>
+                </div>
+                {persForm.isDeceased === "yes" && (
+                  <div>
+                    <label className="text-[10px] text-neutral-300 block mb-0.5">Death Date</label>
+                    <input type="date" value={persForm.deathDate} onChange={(e) => setPersForm({ ...persForm, deathDate: e.target.value })} className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2 text-xs text-white" />
+                  </div>
+                )}
+                <input type="text" placeholder="Associated Organization" value={persForm.company} onChange={(e) => setPersForm({ ...persForm, company: e.target.value })} className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-xs text-white" />
+                <input type="url" placeholder="Official Website Link" value={persForm.website} onChange={(e) => setPersForm({ ...persForm, website: e.target.value })} className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-xs text-white" />
+                <input type="url" placeholder="LinkedIn Profile Link" value={persForm.linkedin} onChange={(e) => setPersForm({ ...persForm, linkedin: e.target.value })} className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-xs text-white" />
+                <input type="url" placeholder="X / Twitter Link" value={persForm.twitter} onChange={(e) => setPersForm({ ...persForm, twitter: e.target.value })} className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-xs text-white" />
+                <input type="text" placeholder="Contact Email / Phone" value={persForm.contact} onChange={(e) => setPersForm({ ...persForm, contact: e.target.value })} className="w-full bg-emerald-990/60 border border-emerald-500/20 rounded-lg p-2.5 text-xs text-white" />
                 <button type="submit" className="w-full py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold transition-all text-xs uppercase tracking-wide">
                   {editPersSlug ? "Update Profile" : "Save Profile"}
                 </button>

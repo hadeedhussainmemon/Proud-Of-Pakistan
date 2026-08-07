@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Search, Menu, X, User, Globe, LogIn, Newspaper, Calendar, Award, Info, LayoutDashboard, LogOut, Image as ImageIcon } from "lucide-react";
+import { Search, Menu, X, User, Globe, LogIn, FileText, Calendar, Award, LayoutDashboard, LogOut } from "lucide-react";
 import { animate } from "animejs";
 import { useSession, signOut } from "next-auth/react";
 
@@ -191,11 +191,11 @@ export default function Navbar() {
               <div className="space-y-2">
                 {navigation.map((link) => {
                   const IconComp = 
-                    link.name === "News" ? Newspaper :
-                    link.name === "Gallery" ? ImageIcon :
+                    link.name === "News" ? FileText :
+                    link.name === "Gallery" ? Award :
                     link.name === "Events" ? Calendar :
                     link.name === "Profile Features" ? Award :
-                    link.name === "About" ? Info :
+                    link.name === "About" ? FileText :
                     link.name === "Admin Dashboard" ? LayoutDashboard : Globe;
                   
                   return (

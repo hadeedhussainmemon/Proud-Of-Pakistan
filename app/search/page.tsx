@@ -96,9 +96,9 @@ function SearchResults() {
             <Link 
               key={`${result.type}-${result._id}`} 
               href={result.url}
-              className="group flex items-center justify-between p-5 rounded-2xl bg-emerald-950/20 border border-emerald-500/10 hover:border-amber-400/40 transition-all"
+              className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl bg-emerald-950/20 border border-emerald-500/10 hover:border-amber-400/40 gap-4 transition-all"
             >
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-4">
                 {result.image ? (
                   <img src={result.image} alt={result.title} className="h-14 w-14 rounded-full object-cover border border-emerald-500/20" />
                 ) : (

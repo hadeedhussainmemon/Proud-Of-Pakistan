@@ -161,8 +161,8 @@ export default function SubmitProfilePage() {
 
           <div>
             <label className="block text-sm font-medium text-emerald-100/70 mb-2">Profile Picture</label>
-            <div className="flex items-center gap-6">
-              <div className="h-24 w-24 rounded-2xl bg-emerald-900/30 border-2 border-dashed border-emerald-500/20 flex flex-col items-center justify-center overflow-hidden relative">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              <div className="h-24 w-24 rounded-2xl bg-emerald-900/30 border-2 border-dashed border-emerald-500/20 flex flex-col items-center justify-center overflow-hidden relative shrink-0">
                 {formData.profilePicture ? (
                   <img src={formData.profilePicture} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
@@ -174,7 +174,7 @@ export default function SubmitProfilePage() {
                   </div>
                 )}
               </div>
-              <div className="flex-1">
+              <div className="flex-grow flex flex-col items-center sm:items-start text-center sm:text-left">
                 <label className="cursor-pointer bg-emerald-950 hover:bg-emerald-900 border border-emerald-500/20 text-emerald-300 text-sm px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2">
                   <Upload className="h-4 w-4" />
                   Upload Image

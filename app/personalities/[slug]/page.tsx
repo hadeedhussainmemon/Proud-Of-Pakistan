@@ -47,12 +47,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function PersonalityDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   let profile = null;
+  let relatedProfiles: any[] = [];
 
   try {
     await dbConnect();
     const data = await PersonalityModel.findOne({ slug });
     if (data) {
       profile = JSON.parse(JSON.stringify(data));
+      
+      // Fetch related profiles prioritising same category
+      const sameCategory = await PersonalityModel.find({
+        category: data.category,
+        slug: { $ne: slug },
+        status: "approved"
+      }).limit(3);
+      
+      let relatedList = [...sameCategory];
+      
+      if (relatedList.length < 3) {
+        const needed = 3 - relatedList.length;
+        const excludedSlugs = [slug, ...relatedList.map((p: any) => p.slug)];
+        const others = await PersonalityModel.find({
+          slug: { $nin: excludedSlugs },
+          status: "approved"
+        }).limit(needed);
+        relatedList = [...relatedList, ...others];
+      }
+      relatedProfiles = JSON.parse(JSON.stringify(relatedList));
     }
   } catch (error) {
     console.error(error);
@@ -253,6 +274,54 @@ export default async function PersonalityDetailPage({ params }: { params: Promis
                     <CheckCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                     <span className="text-neutral-200 text-sm leading-relaxed">{ach}</span>
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Related Profiles Section */}
+          {relatedProfiles && relatedProfiles.length > 0 && (
+            <div className="border-t border-emerald-500/10 pt-8 mt-8">
+              <h2 className="text-lg font-bold text-emerald-400 mb-6 flex items-center gap-2 uppercase tracking-wider">
+                <User className="h-5 w-5 text-amber-400" /> Discover More Heroes
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {relatedProfiles.map((p: any) => (
+                  <Link 
+                    key={p.slug} 
+                    href={`/personalities/${p.slug}`}
+                    className="flex flex-col bg-[#030e07] border border-emerald-500/10 hover:border-emerald-500/30 rounded-2xl overflow-hidden hover:scale-[1.02] transition-all duration-300 group shadow-lg"
+                  >
+                    <div className="relative aspect-[4/3] w-full bg-emerald-950/20 overflow-hidden">
+                      {p.profilePicture || p.images?.[0] ? (
+                        <img 
+                          src={p.profilePicture || p.images[0]} 
+                          alt={p.name} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-emerald-500/10">
+                          <User className="h-12 w-12" />
+                        </div>
+                      )}
+                      <span className="absolute top-3 left-3 bg-emerald-950/90 border border-emerald-500/20 text-emerald-300 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        {p.category}
+                      </span>
+                    </div>
+                    <div className="p-5 flex-grow flex flex-col justify-between">
+                      <div>
+                        <h4 className="font-bold text-white text-base group-hover:text-amber-400 transition-colors line-clamp-1">
+                          {p.name}
+                        </h4>
+                        <p className="text-xs text-neutral-400 line-clamp-2 mt-2 leading-relaxed font-light">
+                          {p.biography}
+                        </p>
+                      </div>
+                      <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider mt-4 block group-hover:translate-x-1 transition-transform">
+                        Read Biography &rarr;
+                      </span>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
